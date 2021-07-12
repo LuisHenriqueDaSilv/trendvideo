@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendVideo|Confirm your email</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link 
+        href="https://fonts.googleapis.com/css2?family=Otomanopee+One&display=swap" 
+        rel="stylesheet"
+    >
+</head>
+<style>
+    body{
+        background-color: #DEDEDE;
+    }
+
+    .container{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #69C9D0;
+        height: 50%;
+        width: 40%;
+        border-radius: 5px;
+        box-shadow: inset -5px -5px rgba(238, 29, 82, 0.2);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    p, h1 {
+        color: rgb(238, 29, 82);
+        font-weight: 700;
+        font-family: 'Otomanopee One', sans-serif;;
+    }
+
+    form {
+        height: 10%;
+        margin-top: 10%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    form > button {
+        background-color: rgba(238,29,82);
+        height: 100%;
+        width: 30%;
+        border: 0;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 1.5rem;
+        font-family: 'Otomanopee One', sans-serif;
+        font-weight: 700;
+        transition: 100ms;
+        cursor: pointer;
+    }
+
+    form > button:hover {
+        background-color: rgb(129, 3, 35);
+    }
+    form > button:disabled {
+        background-color: rgba(129, 3, 35);
+    }
+
+    form > input {
+        height: 100%;
+        border-radius: 5px;
+        border: 0;
+        width: 50%;
+        font-family: 'Otomanopee One', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    @media ( max-width: 900px ) {
+        .container {
+            width: 80%;
+            height: 80%;
+        }
+    }
+</style>
+<body>
+    <div class="container">
+        <h1>
+            TrendVideo | Confirm your email
+        </h1>
+        <p>
+            to complete the process of creating your account,
+            confirm the password entered at the time of creation
+        </p>
+        <form onsubmit="formSubmit(event)">
+            <input 
+                id="password_input" 
+                maxlength="30" 
+                type="password" 
+                placeholder="Confirm your password"
+            />
+            <button id="form_button">Confirm</button>
+        </form>
+    </div>
+</body>
+<script>
+
+    const formSubmit = (event) => {
+
+        event.preventDefault()
+
+        const confirmPasswordInput = document.getElementById('password_input')
+        const confirmPassword = confirmPasswordInput.value
+
+        const params = new URLSearchParams(document.location.search);
+        const uuid = params.get("uuid");
+
+
+        const data = new FormData() 
+
+        data.append("uuid", uuid)
+        data.append("confirm_password", confirmPassword)
+        fetch('/account/create/confirm', {
+            method: 'POST',
+            body: data
+        }).then(async (response) => {
+            const data = await response.json()
+
+            if(data.status == 'error'){
+                alert(
+                    `Something unexpected happened. Confirm your password or try to create your account again later`
+                )
+            }else {
+                alert(`Your account is ready to use.`)
+                confirmPasswordInput.disabled = true
+                document.getElementById('form_button').disabled = true
+            }
+
+        })
+
+        
+        return false
+    }
+
+</script>
+</html>

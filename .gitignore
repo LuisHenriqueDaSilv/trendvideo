@@ -1,0 +1,16 @@
+.env
+
+#Backend
+backend/env/
+__pycache__/
+backend/app/database/database.sqlite
+backend/app/database/files/user_image/
+!backend/app/database/files/user_image/default.jpg
+backend/app/database/files/videos/
+!backend/app/database/files/videos/default.ogv
+backend/app/models/migrations/
+backend/app/logs/
+
+
+#FrontEnd
+node_modules/
