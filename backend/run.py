@@ -1,5 +1,4 @@
 import dotenv
-import dotenv
 
 dotenv_variables = dotenv.dotenv_values()
 PORT=dotenv_variables.get('PORT')

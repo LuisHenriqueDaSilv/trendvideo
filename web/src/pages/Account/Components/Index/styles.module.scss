@@ -1,0 +1,113 @@
+.container {
+
+    display: flex;
+    flex-direction: column;
+    width: 73rem;
+    height: 60vh;
+    position: absolute;
+    right: 0;
+    align-self: center;
+    justify-content: space-between;
+    align-items: center;
+    
+    header {
+        color: #FFF;
+        text-align: center;
+        font-family: 'Fira Code', monospace;
+        font-weight: 700;
+        align-items: center;
+
+        h1 {
+            font-size: 6rem;
+        }
+
+        p{
+            font-size: 2.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+    }
+    
+    section {
+
+        display: flex;
+        flex-direction: row;
+        display: flex;
+        justify-content: space-between;
+        width: 80%;
+        gap: 5rem
+    }
+}
+
+.button {
+    height: 8rem;
+    width: 25rem;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    color: #FFF;
+    border-radius: 5px;
+    font-family: 'Fira Code', monospace;
+    font-weight: 700;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: 200ms;
+}
+
+#createButton {
+    background-color: var(--green);
+}
+#createButton:hover {
+    background-color: var(--hover-green);
+}
+#loginButton {
+    background-color: var(--cyan);
+}
+#loginButton:hover {
+    background-color: var(--hover-cyan);
+}
+
+@media (pointer:none), (pointer:coarse) {
+
+    .container {
+
+        position: absolute;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0;
+        right: 0;
+
+        align-self: center;
+        width: 80vw;
+        height: 70vh;
+        align-items:center;
+        margin-bottom: 30px;
+        justify-content: space-between;
+
+
+
+        header {
+            h1 {
+                font-size: 3rem;
+            }
+
+            p {
+                font-size: 1.5rem;
+            }
+        }
+
+        section {
+            margin-top: 3rem;
+            flex-direction: column;
+            width: 100%;
+            align-items: center;
+            gap: 3rem
+        }
+    }
+
+    .button {
+        width: 80vw;
+        height: 5rem;
+    }
+
+}

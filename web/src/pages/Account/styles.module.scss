@@ -1,0 +1,12 @@
+.container{
+    display: flex;
+    background-color: var(--background-color);
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    width: auto;
+    background: linear-gradient(to left bottom , var(--background-color) 50% ,var(--dark-green) 10%);
+}

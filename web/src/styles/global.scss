@@ -1,0 +1,23 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root{
+    --background-color: #181A1B;
+    --dark-green: #042628;
+    --green: #0B8308;
+    --cyan: #086D83;
+    --gray: #C4C4C4;
+    --hover-green: #064805;
+    --hover-cyan: #033E4B;
+    
+    font-size: 60%
+}
+
+@media (pointer:none), (pointer:coarse) {
+    :root {
+        font-size: 100%;
+    }
+}
