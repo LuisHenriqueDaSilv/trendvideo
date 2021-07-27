@@ -1,9 +1,14 @@
 import React from 'react'
 import {Routes} from './Routes'
-import './styles/global.scss'
+import './Styles/global.scss'
+
+//Contexts
+import {AlertContextProvider} from './Contexts/AlertContext'
 
 export default function App(){
     return(
-        <Routes/>
+        <AlertContextProvider>
+            <Routes/>
+        </AlertContextProvider>
     )
 }

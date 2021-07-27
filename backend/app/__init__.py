@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 import logging
 
 
@@ -9,6 +10,8 @@ app = Flask(__name__)
 
 #App config
 app.config.from_object('config')
+
+CORS(app)
 
 
 #Logger configs

@@ -1,4 +1,4 @@
-.container {
+.indexContaienr {
 
     display: flex;
     flex-direction: column;
@@ -51,25 +51,23 @@
     font-weight: 700;
     font-size: 2rem;
     cursor: pointer;
-    transition: 200ms;
+}
+
+.button:hover{
+    opacity: 0.5;
 }
 
 #createButton {
     background-color: var(--green);
 }
-#createButton:hover {
-    background-color: var(--hover-green);
-}
+
 #loginButton {
     background-color: var(--cyan);
 }
-#loginButton:hover {
-    background-color: var(--hover-cyan);
-}
 
-@media (pointer:none), (pointer:coarse) {
+@media (max-width: 1050px){
 
-    .container {
+    .indexContaienr {
 
         position: absolute;
         margin-left: auto;
@@ -101,7 +99,8 @@
             flex-direction: column;
             width: 100%;
             align-items: center;
-            gap: 3rem
+            gap: 3rem;
+            padding-bottom: 2rem;
         }
     }
 

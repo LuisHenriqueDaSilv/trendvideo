@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    transition: 200ms;
 }
 
 :root{
@@ -10,8 +11,7 @@
     --green: #0B8308;
     --cyan: #086D83;
     --gray: #C4C4C4;
-    --hover-green: #064805;
-    --hover-cyan: #033E4B;
+    --red: #F44336;
     
     font-size: 60%
 }

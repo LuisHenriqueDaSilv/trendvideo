@@ -30,7 +30,7 @@ def create():
 
         username = request.form.get('username').strip()
         user_email = request.form.get('email')
-        password = request.form.get('password')        
+        password = request.form.get('password').strip()
 
         invalid_username = not username or len(username) > 20 or len(username) < 5 or " " in username
         if invalid_username:
@@ -39,7 +39,7 @@ def create():
                 'message':'Invalid username'
             }, 400
 
-        invalid_password = not password or len(password) >= 30 or len(password) < 8 or " " in username
+        invalid_password = not password or len(password) >= 30 or len(password) < 8 or " " in password
         if invalid_password:
             return {
                 'status':'error',
