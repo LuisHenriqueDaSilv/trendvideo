@@ -1,4 +1,5 @@
 .env
+.vscode/
 
 #Backend
 backend/env/

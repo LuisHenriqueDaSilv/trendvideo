@@ -22,10 +22,14 @@ def confirm_template():
     return render_template('confirm_email.html')
 
 
+
 @router.route('/account/create/confirm', methods=['POST'])
-def confirm():
+def account_confirm_process():
     return account_controller.confirm()
 
+@router.route('/account/create/cancel', methods=['POST'])
+def cancel_account_confirm_process():
+    return account_controller.cancel_confirm()
 
 @router.route('/account/login', methods=['POST'])
 def login():
@@ -89,4 +93,3 @@ def get_userimage(filename):
     except:
         
         return send_file(f'database/files/user_image/default.jpg')
-

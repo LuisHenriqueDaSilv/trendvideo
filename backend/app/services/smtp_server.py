@@ -10,6 +10,10 @@ SERVER_EMAIL_HOST = dotenv_variables.get('SERVER_EMAIL_HOST')
 SERVER_EMAIL_PORT = dotenv_variables.get('SERVER_EMAIL_PORT')
 
 
+if not SERVER_EMAIL or not SERVER_EMAIL_PASSWORD \
+    or not SERVER_EMAIL_HOST or not SERVER_EMAIL_PORT:
+        raise Exception('Configure .env file with all emails configs')
+
 #Configure smtp server
 smtp_server = SMTP(host=SERVER_EMAIL_HOST, port=SERVER_EMAIL_PORT)
 smtp_server.ehlo()

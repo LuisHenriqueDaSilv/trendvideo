@@ -4,8 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import logging
 
-
-app = Flask(__name__)
+app = Flask(
+    __name__, 
+    static_folder="../publics",
+    static_url_path = '/static'
+)
 
 
 #App config

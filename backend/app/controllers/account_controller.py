@@ -19,7 +19,6 @@ from ..models import Account
 
 #Getting dotenv variables
 dotenv_variables = dotenv_values('.env')
-SERVER_ADDRESS = dotenv_variables.get('SERVER_ADDRESS')
 SERVER_EMAIL = dotenv_variables.get('SERVER_EMAIL')
 JWT_SECRET_KEY = dotenv_variables.get('JWT_SECRET_KEY')
 
@@ -76,11 +75,10 @@ def create():
         ).first()
 
         if account_using_same_email:
-            if account_using_same_email.status == 'awaiting confirmation':
-                return {
-                    'status': 'error',
-                    'message': 'There is already an account using this email'
-                }, 400
+            return {
+                'status': 'error',
+                'message': 'There is already an account using this email'
+            }, 400
 
 
 
@@ -104,7 +102,8 @@ def create():
         confirmation_email['Subject'] = 'Confirm your email'
 
         confirmation_email_body = gen_confirmation_email_body(
-            confirm_url=f"{SERVER_ADDRESS}/account/create/confirm/email?uuid={confirmation_uuid}"
+            confirm_url=f"{request.url_root}/account/create/confirm/email?uuid={confirmation_uuid}",
+            server_url=request.url_root
         )
         confirmation_email.attach(MIMEText(confirmation_email_body,'html')) 
 
@@ -116,12 +115,15 @@ def create():
                 msg=confirmation_email.as_bytes()
             )
 
-        except:
+        except Exception as error:
+
+            print(error)
             
             return {
                 'status': 'error', 
                 'message': 'Error to send confirmation email'
             }, 400
+
 
 
 
@@ -134,7 +136,7 @@ def create():
 
         
 
-        #encrypting the password and saving in database
+        # encrypting the password and saving in database
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
         
         user_account = Account(
@@ -164,10 +166,16 @@ def confirm():
 
     try:
     
-        confirm_password = request.form['confirm_password']
-        uuid = request.form['uuid']
+        confirm_password = request.form.get('confirm_password')
+        uuid = request.form.get('uuid')
 
-        user_account = Account.query.filter_by(confirmation_uuid=uuid).first()
+        if not confirm_password or not uuid :
+            return  {
+                'status': 'error',
+                'message': 'Password or uuid not provided'
+            }, 400
+
+        user_account = Account.query.filter_by(confirmation_uuid=uuid, status='awaiting confirmation').first()
 
         if user_account is not None:
             
@@ -207,12 +215,57 @@ def confirm():
             'message':'something unexpected happened'
         }, 500
 
+def cancel_confirm():
+
+    try:
+        
+        user_email = request.form.get('email')
+        uuid = request.form.get('uuid')
+
+        if not user_email  or not uuid:
+
+            return {
+                'status': 'error',
+                'message': 'Email or uuid not provided'
+            }, 400
+
+            
+        user_account = Account.query.filter_by(email=user_email, status='awaiting confirmation', confirmation_uuid=uuid).first()
+
+        if user_account is not None:
+            
+            db.session.delete(user_account)
+            db.session.commit()
+
+            return {'status': 'OK'}
+            
+        else:
+            return {
+                'status': 'error',
+                'message': 'There is no confirmation process with this email and uuid.'
+            }, 404
+
+    except Exception as error:
+
+        app.logger.error(error)
+
+        return {
+            'status': 'error', 
+            'message':'something unexpected happened'
+        }, 500
+    
 def login():
 
     try:
 
-        user_email = request.form['email']
-        user_password = request.form['password']
+        user_email = request.form.get('email')
+        user_password = request.form.get('password')
+
+        if not user_email or not user_password :
+            return {
+                'status': 'error',
+                'message': 'Password or email not provided'
+            }, 400
 
         user_account = Account.query.filter_by(email=user_email).first()
 
@@ -242,14 +295,15 @@ def login():
 
         user_infos_to_send = {
             'username': user_account.username,
-            'image': f'{SERVER_ADDRESS}/account/image/{user_account.image_name}',
+            'image': f'{request.url_root}/account/image/{user_account.image_name}',
             'followers': user_account.followers,
             'status': user_account.status
         }
 
         return {
-            'token': token.decode('utf-8'),
-            'user': user_infos_to_send
+            'status': 'OK',
+            'token': token,
+            'user': user_infos_to_send,
         }
 
     except Exception as error:

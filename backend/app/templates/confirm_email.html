@@ -1,147 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrendVideo|Confirm your email</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link 
-        href="https://fonts.googleapis.com/css2?family=Otomanopee+One&display=swap" 
-        rel="stylesheet"
-    >
-</head>
-<style>
-    body{
-        background-color: #DEDEDE;
-    }
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="http://localhost:5000/static/Logo.png" />
+        <title>Trend Video|Account confirmation</title>
 
-    .container{
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #69C9D0;
-        height: 50%;
-        width: 40%;
-        border-radius: 5px;
-        box-shadow: inset -5px -5px rgba(238, 29, 82, 0.2);
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
 
-    p, h1 {
-        color: rgb(238, 29, 82);
-        font-weight: 700;
-        font-family: 'Otomanopee One', sans-serif;;
-    }
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link 
+            href="https://fonts.googleapis.com/css2?family=Otomanopee+One&display=swap" 
+            rel="stylesheet"
+        >
 
-    form {
-        height: 10%;
-        margin-top: 10%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }
-    form > button {
-        background-color: rgba(238,29,82);
-        height: 100%;
-        width: 30%;
-        border: 0;
-        border-radius: 5px;
-        color: #fff;
-        font-size: 1.5rem;
-        font-family: 'Otomanopee One', sans-serif;
-        font-weight: 700;
-        transition: 100ms;
-        cursor: pointer;
-    }
+    </head>
+    <style>
 
-    form > button:hover {
-        background-color: rgb(129, 3, 35);
-    }
-    form > button:disabled {
-        background-color: rgba(129, 3, 35);
-    }
-
-    form > input {
-        height: 100%;
-        border-radius: 5px;
-        border: 0;
-        width: 50%;
-        font-family: 'Otomanopee One', sans-serif;
-        font-weight: 700;
-        font-size: 1rem;
-    }
-
-    @media ( max-width: 900px ) {
-        .container {
-            width: 80%;
-            height: 80%;
+        :root {
+            font-size: 100%
+        } 
+        @media (pointer:none), (pointer:coarse) {
+            :root {
+                font-size: 60%;
+            }
         }
-    }
-</style>
-<body>
-    <div class="container">
-        <h1>
-            TrendVideo | Confirm your email
-        </h1>
-        <p>
-            to complete the process of creating your account,
-            confirm the password entered at the time of creation
-        </p>
-        <form onsubmit="formSubmit(event)">
-            <input 
-                id="password_input" 
-                maxlength="30" 
-                type="password" 
-                placeholder="Confirm your password"
-            />
-            <button id="form_button">Confirm</button>
-        </form>
-    </div>
-</body>
-<script>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: 200ms;
+            font-family: 'Fira Code', monospace;
 
-    const formSubmit = (event) => {
+        }
 
-        event.preventDefault()
+        body {
+            background: #042628;
+        }
 
-        const confirmPasswordInput = document.getElementById('password_input')
-        const confirmPassword = confirmPasswordInput.value
+        .overlay {
+            height: 100vh;
+            width: 100vw;
+            background: linear-gradient(to left bottom , #181A1B 50%, #042628 10%);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
-        const params = new URLSearchParams(document.location.search);
-        const uuid = params.get("uuid");
+        .container {
+            background-color: #20282C;
+            height: 49rem;
+            width: 85rem;
+            border-radius: 20px;
+            display: grid;
+            grid-template-rows: 1fr 1fr;
 
+            position: absolute;
+            top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            left: 0;
+            right: 0;
+            align-self: center;
+        }
 
-        const data = new FormData() 
+        section {
+            display: flex;
+            align-content: space-between;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            color: #fff;
+            gap: 3rem;
+        }
 
-        data.append("uuid", uuid)
-        data.append("confirm_password", confirmPassword)
-        fetch('/account/create/confirm', {
-            method: 'POST',
-            body: data
-        }).then(async (response) => {
-            const data = await response.json()
+        h1 {
+            font-weight: 700;
+            font-size: 2rem;
+        }
+        
+        p {
+            font-weight: 700;
+            font-size: 1.3rem;
+            text-align: center;
+            width: 85%;
+        }
 
-            if(data.status == 'error'){
-                alert(
-                    `Something unexpected happened. Confirm your password or try to create your account again later`
-                )
-            }else {
-                alert(`Your account is ready to use.`)
-                confirmPasswordInput.disabled = true
-                document.getElementById('form_button').disabled = true
+        form {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        form > div {
+            display: flex;
+            flex-direction: row;
+        }
+
+        label {
+            margin: 0;
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+
+        input {
+            width: 80%;
+            height: 3rem;
+            border: none;
+            background-color: #DFDFDF;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #181A1B;
+            padding-left: 0.5rem;
+        }
+
+        button {
+            border: none;
+            height: 3rem;
+            width: 20%;
+            font-weight: 700;
+            color: #181A1B;
+            font-size: 1.3rem;
+            background-color: #C4C4C4;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            transition: 200ms;
+        }
+        button:hover{
+            opacity: 0.7;
+        }
+
+        button:disabled{
+            cursor: not-allowed;
+        }
+        input:disabled {
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 1050px){
+
+            .container {
+                background: none;
+                width: 100vw;
+                bottom: 0;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
             }
 
-        })
+            p {
+                width: 90vw;
+            }
 
-        
-        return false
-    }
+            label {
+                align-self: flex-start;
+                font-size: 1.5rem;
+            }
 
-</script>
+            form {
+                width: 100%;
+            }
+            input {
+                width: 70vw;
+                height: 4rem;
+            }
+            
+            button {
+                height: 4rem;
+                width: 20vw;
+            }
+
+        }
+
+
+
+    </style>
+    <body>
+        <div class="overlay">
+            <div class="container">
+
+                <section>
+                    <h1>Confirm your account</h1>
+                    <p>To complete the process of creating your account, confirm the password entered at the time of creation</p>
+                    <form onsubmit="passwordFormSubmit(event)">
+                        <label>Password</label>
+                        <div>
+                            <input 
+                                type="password"
+                                id="password_input"
+                                maxlength="30"
+                            />
+                            <button type="submit">Confirm</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section>
+                    <h1>Forgot password?</h1>
+                    <p>If you forgot your password, confirm your email to cancel confirmation process and try creating the account again</p>
+                    
+                    <form onsubmit="emailFormSubmit(event)">
+                        <label>Email</label>
+                        <div>
+                            <input
+                                type="text"
+                                id="email_input"
+                            />
+                            <button type="submit">Confirm</button>
+                        </div>
+                    </form>
+
+                </section>
+
+            </div>
+        </div>
+    </body>
+    <noscript>Please enable javascript in your browser to use this page</noscript>
+    <script>
+
+        function passwordFormSubmit(event){
+            event.preventDefault()
+            
+            const queryParams = new URLSearchParams(document.location.search);
+            const uuid = queryParams.get('uuid');
+
+            const confirmPasswordInput = document.getElementById('password_input')
+            const confirmPasswordValue = confirmPasswordInput.value
+
+            const data = new FormData() 
+
+            data.append("uuid", uuid)
+            data.append("confirm_password", confirmPasswordValue)
+
+            fetch('/account/create/confirm', {
+                method: 'POST',
+                body: data
+            }).then(async (response) => {
+
+                const responseData = await response.json()
+
+                if(responseData.status === 'error'){
+                    alert(`Error: ${responseData.message}`)
+                }else {
+
+                    alert(`Your account is ready to use.`)
+
+                    $(':button').prop('disabled', true)
+                    
+                    $(':input').prop('disabled', true)
+                    $(':input').prop('value', '')
+                }
+
+            })
+
+
+            return false  
+        }
+
+        function emailFormSubmit(event){
+
+            event.preventDefault()
+
+            const queryParams = new URLSearchParams(document.location.search)
+            const uuid = queryParams.get('uuid')
+
+            const cancelEmailInput = document.getElementById('email_input')
+            const cancelEmailValue = cancelEmailInput.value
+
+            const data  = new FormData()
+
+            data.append('uuid', uuid)
+            data.append('email', cancelEmailValue)
+
+            fetch('/account/create/cancel', {
+                method: 'POST',
+                body: data
+            }).then(async(response) => {
+
+                const responseData = await response.json()
+
+                if(responseData.status === 'error'){
+
+                    alert(`Error: ${responseData.message}`)
+
+                }else {
+                    alert(`Your account confirm process are delete with sucess`)
+                }
+            })
+
+            return false
+        }
+
+    </script>
 </html>

@@ -1,31 +1,40 @@
 //Styles
 import styles from './styles.module.scss'
 
-interface AlertProps{
-    type: 'error'|'notification',
-    percentageToEnd: number,
-    message: string
-}
+import {AlertProps} from '../../@types'
 
-export function Alert( {type, percentageToEnd, message} :AlertProps){
-
+export function Alert( {title, percentageToEnd, message, closeAlert} :AlertProps){
 
     return(
         <div className={styles.alertContainer}>
-            <img src="/errorIcon.png"/>
-            <section>
-                <h1>Error</h1>
+            <img 
+                src={title === 'error'? "/errorIcon.png":"/notificationIcon.png"}
+                alt={title === 'error'? "errorIcon":"notificationIcon"}
+            />
+            <section
+                className={
+                    title === 'error'? (
+                        styles.errorSection
+                    ): (
+                        styles.notificationSection
+                    )
+                }>
+                <h1>{title}</h1>
                 <p>{message}</p>
             </section>
-            <label/>{/*to "justify-content: space-between" work*/}
-            <div>
+            <div className={styles.closeButtonContainer}>
+                <button onClick={closeAlert}>
+                    <label>x</label>
+                </button>
+            </div>
+            <footer>
                 <div
                     style={{
-                        width: `calc(${percentageToEnd}* 50rem)`,
+                        width: `calc(${percentageToEnd}* 100%)`,
                         borderBottomRightRadius: `calc(${percentageToEnd}* 15px)`,
                     }}
                 />
-            </div>
+            </footer>
         </div>
     )
 }

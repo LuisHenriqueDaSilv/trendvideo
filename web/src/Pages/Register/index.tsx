@@ -11,7 +11,7 @@ import {Watermark} from '../../Components/Watermark'
 //Styles
 import styles from './styles.module.scss'
 
-export function Account(){
+export function Register(){
     return(
         <div className={styles.container} >
             <Watermark/>

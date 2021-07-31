@@ -1,15 +1,43 @@
-import {BrowserRouter, Route, Switch} from 'react-router-dom'
+import {BrowserRouter, Route, Switch, Redirect} from 'react-router-dom'
 
+//Services
+import {isAuthenticated} from './Services/authorization'
 
 //Pages
-import {Account} from './Pages/Main'
+import {Register} from './Pages/Register'
 
+const AuthenticatedRoute = ({ Component, ...rest }:any) => (
+    <Route
+        {...rest}
+        render={props =>
+            isAuthenticated() ? (
+                <Component {...props} />
+            ) : (
+                <Redirect to={{ pathname: "/", state: { from: props.location } }} />
+            )
+        }
+    />
+)
+
+const UnauthenticatedRoute = ({ Component, ...rest }:any) => (
+    <Route
+        {...rest}
+        render={props =>
+            isAuthenticated() ? (
+                <Redirect to={{ pathname: "/home", state: { from: props.location } }} />
+            ) : (
+                <Component {...props} />
+            )
+        }
+    />
+)
 
 export function Routes(){
     return (
         <BrowserRouter>
             <Switch>
-                <Route path="/" component={Account} />
+                <AuthenticatedRoute path="/home" Component={() => <h1>Home</h1>}/>
+                <UnauthenticatedRoute path="/" Component={Register} />
             </Switch>
         </BrowserRouter>
     )
