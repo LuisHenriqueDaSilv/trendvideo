@@ -3,7 +3,6 @@ from datetime import datetime
 
 class Account(db.Model):
 
-
     __tablename__ = "accounts"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
@@ -16,10 +15,12 @@ class Account(db.Model):
     image_name = db.Column(db.Text)
     created_at = db.Column(db.Text)
 
+    videos = db.relationship('Video', backref='owner')
+
     def __init__(self, username, email, password, confirmation_uuid, image_name):
 
         self.followers = 0
-        self.created_at = datetime.now().strftime('%d/%m/%Y-%H:%M')
+        self.created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.status= 'awaiting confirmation'
 
         self.email = email

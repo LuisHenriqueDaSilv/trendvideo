@@ -1,24 +1,21 @@
-from logging import exception
 from flask import request
 from uuid import uuid4
 from datetime import date
+import sqlalchemy 
 import cv2
 import math
 import os
+import json
 
 from app import app, db
 
 #Models
-from ..models import Video
+from ..models import Video, Account
 
 
 def create(user):
 
     try:
-
-
-        if user is None:
-            raise Exception('Something wrong happened in token verification')
 
         if user.status != 'OK':
             return {
@@ -53,39 +50,63 @@ def create(user):
             'video/webm', 'video/ogg', 'video/mp4'
         ]
 
-        if video.mimetype in allowed_video_mimetypes:
-            
-            video_name = f'{uuid4().hex}-{date.today()}.ogv'
-            video.save(f'./app/database/files/videos/{video_name}')
-
-            video_cv2 = cv2.VideoCapture(f'./app/database/files/videos/{video_name}')
-
-            video_fps = video_cv2.get(cv2.CAP_PROP_FPS)
-            video_frames = video_cv2.get(cv2.CAP_PROP_FRAME_COUNT)
-
-            video_duration = math.floor(float(video_frames) / float(video_fps))
-
-            if video_duration > 60* 2: # 2 minutes
-
-                os.remove(f'./app/database/files/videos/{video_name}')
-
-                return {
-                    'status': 'error',
-                    'message': 'video length too long'
-                }, 400
-            
-        else:
+        if video.mimetype not in allowed_video_mimetypes:
             return {
                 'status': 'error',
                 'message': 'Invalid video format'
             }, 400
+
+
+        video_name = f'{uuid4().hex}-{date.today()}.ogv'
+        video.save(f'./app/database/files/videos/{video_name}')
+
+        video_cv2 = cv2.VideoCapture(f'./app/database/files/videos/{video_name}')
+
+        video_fps = video_cv2.get(cv2.CAP_PROP_FPS)
+        video_frames = video_cv2.get(cv2.CAP_PROP_FRAME_COUNT)
+
+        video_duration = math.floor(float(video_frames) / float(video_fps))
+
+        if video_duration > 60* 2: # 2 minutes
+
+            os.remove(f'./app/database/files/videos/{video_name}')
+
+            return {
+                'status': 'error',
+                'message': 'video length too long'
+            }, 400
+
+
+        allowed_thumbnail_mimetypes = [
+            "image/png", "image/jpeg"
+        ]
+
+        video_thumbnail = request.files.get('thumbnail')
         
-        
+        thumbnail_name =  f'{uuid4().hex}-{date.today()}.png'
+
+        if video_thumbnail:
+
+            if video_thumbnail.mimetype not in allowed_thumbnail_mimetypes:
+                return  {
+                    'status': 'error',
+                    'message': 'Invalid thumbnail format'
+                }, 400
+
+            video_thumbnail.save(f'./app/database/files/thumbnails/{thumbnail_name}')
+
+        else: 
+            video_cv2.set(1, video_frames/3)
+            ret, frame = video_cv2.read()
+            cv2.imwrite(f'./app/database/files/thumbnails/{thumbnail_name}', frame)
+            
+
 
         video_to_save = Video(
             name=video_name, 
             owner_id=user.id,
-            description=description
+            description=description,
+            thumbnail=thumbnail_name
         )
 
         db.session.add(video_to_save)
@@ -107,11 +128,6 @@ def delete(user):
     
     try:
 
-        if user is None:
-            raise Exception('Something wrong happened in token verification')
-
-        
-        
         video_id = request.form.get('video_id')
 
         try:
@@ -150,6 +166,55 @@ def delete(user):
 
     except Exception as error:
         
+        app.logger.error(error)
+
+        return {
+            'status': 'error',
+            'message': 'Something unexpected happened'
+        }, 500
+
+def get_videos_list(user):
+
+    try:
+
+        args = dict(request.args)
+
+        order_by = args.get('order_by') or 'news'  # default news
+        start = args.get('start') or 0 # default 0
+
+        videos_list = []
+
+        if order_by == 'news':
+
+            videos = Video.query.order_by(
+                sqlalchemy.desc(Video.created_at)
+            ).limit(25).offset(int(start)).all()
+
+            for video in videos:
+
+                ### to do: add coments,  followed, video_url
+
+                videos_list.append({
+                    'url': f'{request.url_root}/video/{video.name}',
+                    'video_data': {
+                        'likes': video.likes,
+                        'description': video.description,
+                    },
+                    'owner': {
+                        'username': video.owner.username,
+                        'created_at': video.owner.created_at,
+                        'followers': video.owner.followers,
+                        'image': video.owner.image_name 
+                    }
+                })
+
+            return  json.dumps(videos_list)
+
+        else:
+            return 'add this'
+
+    except Exception as error:
+
         app.logger.error(error)
 
         return {

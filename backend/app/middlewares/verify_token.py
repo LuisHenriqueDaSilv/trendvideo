@@ -17,17 +17,17 @@ def verify_token(function):
         token = request.headers.get('authorization')
 
         if not token:
-            
+
             return {
                 'status':'error',
-                'message':'Invalid token'
+                'message':'Invalid authorization token'
             }, 401
         
         if 'Bearer ' not in token:
 
             return {
                 'status':'error',
-                'message':'Invalid token'
+                'message':'Invalid authorization token'
             }, 401
 
 
@@ -35,21 +35,19 @@ def verify_token(function):
         try:
             token = token.replace("Bearer ", "")
 
-            decoded = jwt.decode(token, JWT_SECRET_KEY)
+            decoded = jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
 
             user_id = decoded['id']
             
             user_account = Account.query.filter_by(id=user_id).first()
 
             if user_account is None:
-                raise 
-        
+                raise
 
-        except Exception:
-
+        except Exception as error:
             return {
                 'status': 'error',
-                'message': 'Invalid token'
+                'message': 'Invalid authorization token'
             }, 401
 
         else:

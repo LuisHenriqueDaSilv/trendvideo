@@ -21,8 +21,6 @@ def create():
 def confirm_template():
     return render_template('confirm_email.html')
 
-
-
 @router.route('/account/create/confirm', methods=['POST'])
 def account_confirm_process():
     return account_controller.confirm()
@@ -38,6 +36,11 @@ def login():
 
 
 #videos controller routes
+
+@router.route('/videos/', methods=['GET'])
+@verify_token
+def get_video_list(user):
+    return video_controller.get_videos_list(user)
 
 @router.route('/video/create', methods=['POST'])
 @verify_token

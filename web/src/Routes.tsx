@@ -6,33 +6,41 @@ import {isAuthenticated} from './Services/authorization'
 //Pages
 import {Register} from './Pages/Register'
 
-const AuthenticatedRoute = ({ Component, ...rest }:any) => (
-    <Route
-        {...rest}
-        render={props =>
-            isAuthenticated() ? (
-                <Component {...props} />
-            ) : (
-                <Redirect to={{ pathname: "/", state: { from: props.location } }} />
-            )
-        }
-    />
-)
 
-const UnauthenticatedRoute = ({ Component, ...rest }:any) => (
-    <Route
-        {...rest}
-        render={props =>
-            isAuthenticated() ? (
-                <Redirect to={{ pathname: "/home", state: { from: props.location } }} />
-            ) : (
-                <Component {...props} />
-            )
-        }
-    />
-)
+const AuthenticatedRoute = ({Component, ...rest}:any) => {
+
+    return (
+        <Route
+            {...rest}
+            render={props =>
+                isAuthenticated()? (
+                    <Component {...props} />
+                ) : (
+                    <Redirect to={{ pathname: "/", state: { from: props.location } }} />
+                )
+            }
+        />  
+    )
+}
+
+const UnauthenticatedRoute = ({ Component, ...rest }:any) => {
+
+    return(
+        <Route
+            {...rest}
+            render={props =>
+                isAuthenticated() ? (
+                    <Redirect to={{ pathname: "/home", state: { from: props.location } }} />
+                ) : (
+                    <Component {...props} />
+                )
+            }
+        />
+    )
+}
 
 export function Routes(){
+    
     return (
         <BrowserRouter>
             <Switch>
