@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
 import {Route, Link, useLocation} from 'react-router-dom'
 
 import styles from './styles.module.scss'
 
 //Components
 import {VideosList} from './Components/VideosList'
+import {AccountOptions} from './Components/AccountOptions'
 
 export function Home(){
 
@@ -16,15 +16,11 @@ export function Home(){
             <header className={styles.pageHeader}>
 
                 <Link to="/" className={styles.LogoContainer}>
-                    <img src="/Logo.png"/>
+                    <img alt="logo" src="/Logo.png"/>
                     <h1>TrendVideo</h1>
                 </Link>
 
-                <section className={styles.accountContainer}>
-                    <img src="http://127.0.0.1:5000//account/image/18bfe6bcef914719a9f9f9637bdd60cb-2021-08-03.png"/>
-                    <h1>Luis Silva</h1>
-                    <img className={styles.expandIcon} src="/Caret.svg"/>
-                </section>
+                <AccountOptions/>
 
             </header>
 
@@ -62,7 +58,9 @@ export function Home(){
                 <div/>
                 <div className={styles.searchBarContainer}>
                     <input type="text"/>
-                    <button>Search Icon</button>
+                    <button>
+                        <img alt="search icon" src="/Search.png"/>
+                    </button>
                 </div>
                 <button className={styles.searchButton}>
                     +

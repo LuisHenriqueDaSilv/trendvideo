@@ -7,7 +7,7 @@
     right: 0;
     height: auto;
     width: auto;
-    z-index: 10;
+    z-index: 20;
     background-color: rgba(00,00,00,0.7);
 
     display: flex;
@@ -27,5 +27,12 @@
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 1050px){
+    .spinner {
+        height: 6rem;
+        width: 6rem;
     }
 }

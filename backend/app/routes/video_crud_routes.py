@@ -14,7 +14,8 @@ router = Blueprint(
 @router.route('/videos', methods=['GET'])
 @verify_token
 def get_video_list(user):
-    return video_controller.get_videos_list(user)
+    videos = video_controller.get_videos_list(user)
+    return videos
 
 @router.route('/video/create', methods=['POST'])
 @verify_token

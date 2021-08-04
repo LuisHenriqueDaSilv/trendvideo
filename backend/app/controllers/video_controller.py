@@ -185,7 +185,7 @@ def get_videos_list(user):
             start = int(start)
         except Exception:
             return {
-                'status': 'errror', 
+                'status': 'error', 
                 'message': 'Start not is a number'
             }, 400
 
@@ -203,7 +203,7 @@ def get_videos_list(user):
 
         elif order_by == 'most_liked':
 
-            videos = Video.query.order_by(
+             videos = Video.query.order_by(
                 sqlalchemy.desc(Video.likes)
             ).limit(
                 25
@@ -221,18 +221,32 @@ def get_videos_list(user):
                 start
             ).all()
 
-
         for video in videos:
 
+            likes_str = str(video.likes)
+            likes_complement = ''
+
+            if len(likes_str) > 9:
+                likes_complement = 'b'
+                likes_str = likes_str[:-9]
+            elif len(likes_str) > 6:
+                likes_complement = 'mi'
+                likes_str = likes_str[:-6]
+            elif len(likes_str) > 3:
+                likes_complement = 'k'
+                likes_str = likes_str[:-3]
+
+                
             ### to do: add followed<boolean>
 
             videos_list.append({
                 'url': f'{request.url_root}/video/{video.name}',
                 'video_data': {
-                    'likes': video.likes,
+                    'likes': f'{likes_str}{likes_complement}',
                     'description': video.description,
                     'created_at': video.created_at,
-                    'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}'
+                    'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
+                    'id': video.id
                 },
                 'owner': {
                     'username': video.owner.username,

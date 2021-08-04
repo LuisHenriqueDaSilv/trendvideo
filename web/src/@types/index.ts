@@ -30,7 +30,8 @@ export interface LoadingContextData {
 export interface Video {
     url: string,
     video_data: {
-        likes: number,
+        likes: string,
+        id: number,
         description: string,
         created_at: string,
         thumbnail_url: string

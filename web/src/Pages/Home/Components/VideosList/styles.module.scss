@@ -35,24 +35,56 @@
 
     .videos {
         display: grid;
+        justify-content: center;
+        justify-items: center;
 
         grid-template-columns: repeat(5,1fr);
         gap: 2rem;
         
         padding: 2rem;
         width: 100%;
+        height: 36rem;
         margin-top: 5rem;
 
-        img {
+        .video {
+            display: flex;
             height: 36rem;
             width: 18rem;
-            border-radius: 5px;
+            background-color: var(--dark-grey);
+
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center center;
             cursor: pointer;
+
+            justify-content: flex-end;
+            align-items: flex-end;
+
+            padding: 10px;
+            color: #fff;
+
+            .videoInfoContainer {
+
+                display: flex;
+                align-items: center;
+                label {
+                    margin: 2px;
+                    font-size: 1.5rem;
+                    z-index: inherit;
+                }
+    
+                img {
+                    height: 2rem;
+                }
+
+            }
+
         }
 
-        img:hover {
+        .video:hover {
             opacity: 0.5;
         }
+
     }
     .endMessageContainer {
         width: 100%;
@@ -60,5 +92,64 @@
         color: #c4c4c4;
         font-size: 1.5rem;
         margin-top: 2rem;
+    }
+}
+
+@media (max-width: 1050px){
+
+    .videosContainer{
+        margin-top: 1rem;
+        margin-bottom: 10rem;
+
+        .videosOptionsContainer {
+            width: 100vw;
+            padding: 10px;
+            align-items: center;
+            justify-content: center;
+
+            div {
+                display: flex;
+                align-items: center;
+                label {
+                    font-size: 0.8rem;
+                }
+
+                select {
+                    border: 0;
+                    color: var(--red);
+                    background-color: var(--dark-green);
+                    height: 2rem;
+                    width: 40vw;
+                }
+            }
+
+        }
+
+        .videos {
+            width: 100vw;
+            grid-template-columns:repeat(2, 1fr);
+            margin-top: 1rem;
+
+            .video{
+                width: 11.2rem;
+                height: 20rem;
+
+                .videoInfoContainer {
+
+                    label {
+                        font-size: 1rem;
+                    }
+        
+                    img {
+                        height: 1rem;
+                    }
+    
+                }
+            }
+        }
+        
+        .endMessageContainer {
+            font-size: 0.7rem;
+        }
     }
 }

@@ -24,7 +24,7 @@ export function VideosList(){
     const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true)
     const [isLoadingVideos, setIsLoadingVideos] = useState<boolean>(true)
 
-    const getVideos = async () => {
+    const getVideos = async (start:number) => {
 
         setIsLoadingVideos(true)
 
@@ -34,9 +34,7 @@ export function VideosList(){
             authorization: `Bearer ${token}`
         }
 
-        const response = await api.get(`/videos?start=${videos.length}&order_by=${sortBy}`, {headers}).catch((error) => {
-
-            console.log(error.response.data.message)
+        const response = await api.get(`/videos?start=${start}&order_by=${sortBy}`, {headers}).catch((error) => {
 
             if(error.response){
 
@@ -63,17 +61,27 @@ export function VideosList(){
             setIsLoadingVideos(false)
             return
         }
+        if(start){
+            setVideos([...videos, ...response.data])
+        }else{
+            setVideos(response.data)
+        }
 
-        setVideos([...videos, ...response.data])
         setHasMoreVideos(true)
         setIsLoadingVideos(false)
 
     }
+    
+    const getMoreVideos = () => {
+        getVideos(videos.length)
+    }
 
     useEffect(() => {
-        setVideos([])
         setHasMoreVideos(true)
-        getVideos()
+        setVideos([])
+        getVideos(0)
+        
+        // eslint-disable-next-line
     }, [sortBy])
 
     const handleSelectChange = (event:any) => {
@@ -99,7 +107,7 @@ export function VideosList(){
             <InfiniteScroll
                 className={styles.videos}
                 dataLength={videos.length}
-                next={getVideos}
+                next={getMoreVideos}
                 hasMore={hasMoreVideos}
                 loader={
                     <></>
@@ -111,8 +119,17 @@ export function VideosList(){
                 {
                     videos.map((video) => {
                         return (
-                            <div>
-                                <img src={video.video_data.thumbnail_url}/>
+                            <div
+                                className={styles.video}
+                                key={video.video_data.id}
+                                style={{
+                                    backgroundImage: `url(${video.video_data.thumbnail_url})`,
+                                }}
+                            >
+                                <div className={styles.videoInfoContainer}>
+                                    <label>{video.video_data.likes}</label>
+                                    <img alt="Likes" src="/Like.png"/>
+                                </div>
                             </div>
                         )
                     })

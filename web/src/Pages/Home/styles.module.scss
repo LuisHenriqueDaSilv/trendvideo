@@ -31,42 +31,11 @@
 
     }
 
-    .accountContainer {
-        background-color: var(--dark-grey);
-        position: absolute;
-        top: 0;
-        right: 0;
-        height: 7rem;
-        width: 40rem;
-        border-bottom-left-radius: 20px;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 2rem;
-        font-size: 1.3rem;
-        color: #c4c4c4;
-
-        font-weight: 700;
-
-        img {
-            height: 5rem;
-            width: 5rem;
-            border-radius: 20px;
-        }
-
-        .expandIcon {
-            height: 5.5rem;
-            width: 5.5rem;
-            filter: invert(70%);
-        }
-    }
-
 }
 
 .videoListContainer{
     display: flex;
-    width: 60%;
+    width: 100rem;
     margin-top: 5rem;
     flex-direction: column;
     align-items: center;
@@ -161,6 +130,11 @@ footer {
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        img {
+            height: 8rem;
+            width: 8rem;
+        }
     }
 
     .searchButton:hover {
@@ -170,4 +144,81 @@ footer {
 
 body {
     background-color: var(--background-color);
+}
+
+@media (max-width: 1050px){
+
+    .pageHeader {
+
+
+        flex-direction: column;
+        padding: 2rem;
+        height: 12rem;
+        justify-content: start;
+        z-index: 20;
+        margin-bottom: 3rem;
+
+
+        .LogoContainer {
+            img {
+                height: 4rem;
+                width: 4rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    }
+
+    .videoListContainer {
+        margin-top: 1rem;
+        width: 100vw;
+        header {
+            height: 4rem;
+            width: 100%;
+            a {
+                font-size: 1rem;
+                display: flex;
+                text-align: center;
+            }
+        }
+    }
+
+    footer {
+        bottom: 0;
+        width: 100vw;
+        display: flex;
+        padding-bottom: 0;
+        flex-direction: column;
+        height: auto;
+
+        .searchBarContainer {
+            input {
+                width: 80vw;
+                height: 3rem;
+                border-radius: 0;
+                font-size: 1rem;
+            }
+
+            button {
+                height: 3rem;
+                width: 20vw;
+                border-radius: 0;
+
+                img {
+                    height: 3rem;
+                    width: 3rem;
+                }
+            }
+        }
+
+        .searchButton {
+            display: flex;
+            height: 3rem;
+            width: 100vw;
+            border-radius: 0;
+            font-size: 2.5rem;
+        }
+    }
 }
