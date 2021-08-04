@@ -27,14 +27,14 @@ export function Alert( {title, percentageToEnd, message, closeAlert} :AlertProps
                     <label>x</label>
                 </button>
             </div>
-            <footer>
+            <div className={styles.alertFooter}>
                 <div
                     style={{
                         width: `calc(${percentageToEnd}* 100%)`,
                         borderBottomRightRadius: `calc(${percentageToEnd}* 15px)`,
                     }}
                 />
-            </footer>
+            </div>
         </div>
     )
 }

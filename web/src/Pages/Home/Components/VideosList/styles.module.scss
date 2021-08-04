@@ -1,0 +1,64 @@
+.videosContainer {
+
+    margin-bottom: 20rem;
+
+    
+    .videosOptionsContainer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+        font-size: 2rem;
+        height: 2rem;
+        width: 100%;
+
+        div {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+
+            label {
+                color: #fff;
+                font-size: 1.5rem;
+            }
+
+            select {
+                border: 0;
+                color: var(--red);
+                background-color: var(--dark-green);
+                height: 2rem;
+                width: 15rem;
+            }
+        }
+    }
+
+    .videos {
+        display: grid;
+
+        grid-template-columns: repeat(5,1fr);
+        gap: 2rem;
+        
+        padding: 2rem;
+        width: 100%;
+        margin-top: 5rem;
+
+        img {
+            height: 36rem;
+            width: 18rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        img:hover {
+            opacity: 0.5;
+        }
+    }
+    .endMessageContainer {
+        width: 100%;
+        text-align: center;
+        color: #c4c4c4;
+        font-size: 1.5rem;
+        margin-top: 2rem;
+    }
+}

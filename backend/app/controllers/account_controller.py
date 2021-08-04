@@ -115,7 +115,7 @@ def create():
                 msg=confirmation_email.as_bytes()
             )
 
-        except Exception as error:
+        except Exception:
             
             return {
                 'status': 'error', 

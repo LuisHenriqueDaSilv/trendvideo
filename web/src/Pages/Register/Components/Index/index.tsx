@@ -11,12 +11,12 @@ export function Index(){
                 <p>The place to explore your creativity</p>
             </header>
             <section>
-                <Link style={{textDecoration: 'none'}} to="/create-account">
+                <Link to="/create-account">
                     <div id={styles.createButton} className={styles.button}>
                         Create Account
                     </div>
                 </Link>
-                <Link style={{textDecoration: 'none'}} to="/login">
+                <Link to="/login">
                     <div id={styles.loginButton} className={styles.button}>
                         Login
                     </div>

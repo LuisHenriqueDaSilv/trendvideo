@@ -1,5 +1,5 @@
 .loginContainer {
-    background-color: #20282C;
+    background-color: var(--grey);
     height: 90rem;
     width: 85rem;
 
@@ -27,7 +27,6 @@
         color: #FFF;
         font-size: 4.5rem;
         font-weight: 700;
-        font-family: 'Fira Code';
     }
 
     form {
@@ -44,7 +43,6 @@
             flex-direction: column;
             color: #FFF;
             align-items: center;
-            font-family: 'Fira Code';
             font-weight: 500;
             width: 60rem;
             
@@ -59,11 +57,10 @@
                 width: 100%;
                 margin-bottom: 10px;
                 height: 5rem;
-                font-family: 'Fira Code';
                 font-weight: 700;
                 font-size: 2rem;
                 padding-left: 1rem;
-                color: #20282C;
+                color: var(--grey);
                 padding-right: 1rem;
             }
             
@@ -75,7 +72,6 @@
             width: 50%;
             background-color: #0B8308;
             color: #FFF;
-            font-family: 'Fira Code';
             font-weight: 700;
             font-size: 2.6rem;
         }
@@ -91,7 +87,6 @@
             a {
                 font-size: 1.3rem;
                 color: #25F4EE;
-                font-family: 'Fira Code';
                 font-weight: 700;
                 
             }

@@ -22,7 +22,6 @@ def create(user):
                 'status': 'error',
                 'message': f'Unable to post video with {user.status} account status '
             }, 400
-        
 
 
         description = request.form.get('description')
@@ -179,39 +178,78 @@ def get_videos_list(user):
 
         args = dict(request.args)
 
-        order_by = args.get('order_by') or 'news'  # default news
+        order_by = args.get('order_by') or 'latest'  # default news
         start = args.get('start') or 0 # default 0
+
+        try:
+            start = int(start)
+        except Exception:
+            return {
+                'status': 'errror', 
+                'message': 'Start not is a number'
+            }, 400
 
         videos_list = []
 
-        if order_by == 'news':
+        if order_by == 'oldest':
 
             videos = Video.query.order_by(
-                sqlalchemy.desc(Video.created_at)
-            ).limit(25).offset(int(start)).all()
+                Video.created_at
+            ).limit(
+                25
+            ).offset(
+                start
+            ).all()
 
-            for video in videos:
+        elif order_by == 'most_liked':
 
-                ### to do: add coments,  followed, video_url
-
-                videos_list.append({
-                    'url': f'{request.url_root}/video/{video.name}',
-                    'video_data': {
-                        'likes': video.likes,
-                        'description': video.description,
-                    },
-                    'owner': {
-                        'username': video.owner.username,
-                        'created_at': video.owner.created_at,
-                        'followers': video.owner.followers,
-                        'image': video.owner.image_name 
-                    }
-                })
-
-            return  json.dumps(videos_list)
+            videos = Video.query.order_by(
+                sqlalchemy.desc(Video.likes)
+            ).limit(
+                25
+            ).offset(
+                start
+            ).all()
 
         else:
-            return 'add this'
+        
+            videos = Video.query.order_by(
+                sqlalchemy.desc(Video.created_at)
+            ).limit(
+                25
+            ).offset(
+                start
+            ).all()
+
+
+        for video in videos:
+
+            ### to do: add followed<boolean>
+
+            videos_list.append({
+                'url': f'{request.url_root}/video/{video.name}',
+                'video_data': {
+                    'likes': video.likes,
+                    'description': video.description,
+                    'created_at': video.created_at,
+                    'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}'
+                },
+                'owner': {
+                    'username': video.owner.username,
+                    'created_at': video.owner.created_at,
+                    'followers': video.owner.followers,
+                    'image_url': f'{request.url_root}/account/userimage/{video.owner.image_name}'
+                }
+            })
+
+        if len(videos_list) < 1:
+            return {
+                'status': 'error',
+                'message': 'Could not find any video'
+            }, 404
+            
+        return  json.dumps(videos_list)
+        
 
     except Exception as error:
 

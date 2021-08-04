@@ -3,6 +3,7 @@
     padding: 0;
     box-sizing: border-box;
     transition: 200ms;
+    font-family: 'Fira Code', monospace;
 }
 
 :root{
@@ -10,8 +11,9 @@
     --dark-green: #042628;
     --green: #0B8308;
     --cyan: #086D83;
-    --gray: #C4C4C4;
     --red: #F44336;
+    --grey: #20282C;
+    --dark-grey: #101213;
     
     font-size: 60%
 }

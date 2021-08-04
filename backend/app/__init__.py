@@ -33,8 +33,9 @@ migrate = Migrate(app, db, directory='./app/models/migrations')
 
 
 #Blueprints
-from .routes import router
-app.register_blueprint(router)
+from .routes import account_crud_routes, video_crud_routes
+app.register_blueprint(account_crud_routes.router)
+app.register_blueprint(video_crud_routes.router)
 
 
 #Database models

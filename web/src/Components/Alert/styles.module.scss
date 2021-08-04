@@ -30,7 +30,6 @@
         justify-content: center;
         text-align: center;
 
-        font-family: 'Fira Code';
         font-weight: 700;
         font-size: 1.7rem;
         gap: 1rem;
@@ -50,7 +49,6 @@
             label {
                 color: var(--red);
                 font-size: 3rem;
-                font-family: 'Fira Code';
                 font-weight: 700;
             }
         }
@@ -60,7 +58,7 @@
         }
     }
 
-    footer {
+    .alertFooter {
         background-color: var(--red);
         height: 1.7rem;
         position: absolute;
@@ -102,7 +100,7 @@
             height: 3rem;
         }
 
-        footer {
+        .alertFooter {
             bottom: -0.6rem;
             height: 0.6rem;
             border-radius: 0;

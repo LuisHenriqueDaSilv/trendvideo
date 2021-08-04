@@ -1,0 +1,173 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pageHeader {
+    width: 100%;
+    height: 16rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: #fff;
+    align-items: center;
+    padding: 4rem;
+
+    .LogoContainer{
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #fff;
+
+        img {
+            height: 12rem;
+            width: 12rem;
+            margin-right: 2rem;
+        }
+
+    }
+
+    .accountContainer {
+        background-color: var(--dark-grey);
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 7rem;
+        width: 40rem;
+        border-bottom-left-radius: 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+        font-size: 1.3rem;
+        color: #c4c4c4;
+
+        font-weight: 700;
+
+        img {
+            height: 5rem;
+            width: 5rem;
+            border-radius: 20px;
+        }
+
+        .expandIcon {
+            height: 5.5rem;
+            width: 5.5rem;
+            filter: invert(70%);
+        }
+    }
+
+}
+
+.videoListContainer{
+    display: flex;
+    width: 60%;
+    margin-top: 5rem;
+    flex-direction: column;
+    align-items: center;
+
+    header {
+        display: flex;
+        width: 70%;
+        justify-content: space-between;
+        height: 6rem;
+        background-color: #fff;
+        gap: 2px;
+
+        a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            width: 100%;
+            font-weight: 700;
+            font-size: 2rem;
+            background: var(--background-color);
+            border: 0;
+
+            color: #FFF
+        }
+
+        a:hover{
+            opacity: 0.9;
+        }
+
+        .disabledButton {
+            color: #6A6A6A
+        }
+    }
+
+    .videosRouter {
+        width: 100%;
+        margin-top: 2rem;
+    }
+}
+
+footer {
+    position: fixed;
+    bottom: 5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 10rem;
+    width: 100%;
+    align-items: center;
+    padding: 2rem;
+
+    .searchBarContainer {
+
+        display: flex;
+
+        input {
+            height: 7rem;
+            width: 50rem;
+            border: 0;
+            border-radius: 5px 0 0 5px;
+            background-color: #DFDFDF;
+            font-size: 2.5rem;
+            font-weight: 500;
+            color: var(--dark-grey);
+            padding-left: 1rem;
+        }
+
+        button {
+            height: 7rem;
+            width: 10rem;
+            border: 0;
+            border-radius: 0 5px 5px 0;
+            background-color: #c4c4c4;
+        }
+
+        button:hover {
+            opacity: 0.7;
+        }
+    }
+
+    .searchButton {
+        height: 9rem;
+        width: 9rem;
+        border-radius: 100%;
+        border: 0;
+        background-color: var(--green);
+        color: #fff;
+        font-size: 5rem;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .searchButton:hover {
+        opacity: 0.7;
+    }
+}
+
+body {
+    background-color: var(--background-color);
+}

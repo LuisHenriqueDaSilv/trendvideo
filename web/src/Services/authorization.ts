@@ -7,3 +7,10 @@ export function isAuthenticated(){
 
     return(token && token !== '')
 }
+
+export function logout(){
+    const cookies = new Cookies()
+
+    cookies.remove('token', {path: '/'})
+
+}

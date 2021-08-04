@@ -13,7 +13,6 @@
     header {
         color: #FFF;
         text-align: center;
-        font-family: 'Fira Code', monospace;
         font-weight: 700;
         align-items: center;
 
@@ -39,6 +38,10 @@
     }
 }
 
+a {
+    text-decoration: none;
+}
+
 .button {
     height: 8rem;
     width: 25rem;
@@ -47,7 +50,6 @@
     display: flex;
     color: #FFF;
     border-radius: 5px;
-    font-family: 'Fira Code', monospace;
     font-weight: 700;
     font-size: 2rem;
     cursor: pointer;
