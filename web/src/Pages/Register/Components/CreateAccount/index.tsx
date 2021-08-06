@@ -18,7 +18,7 @@ require('dotenv/config')
 
 export function CreateAccount(){
 
-    const defaultProfileImageUrl = `${process.env.REACT_APP_BACKEND_URL}/account/userimage/default.png`
+    const defaultProfileImageUrl = `${process.env.REACT_APP_BACKEND_URL}/account/image/default.jpg`
 
     const history = useHistory()
 

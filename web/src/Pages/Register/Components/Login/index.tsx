@@ -68,13 +68,17 @@ export function Login(){
             
             return null
         })
+
         if(!response){
             disableLoading()
             return
         }
         
         if(response.data.status === 'OK'){
+            
             setCookie('token', response.data.token, {path: '/'})
+            localStorage.setItem('profileImage', response.data.user.image_url)
+            localStorage.setItem('username', response.data.user.username)
 
             history.push('/')
             

@@ -17,6 +17,14 @@
     z-index: 2;
 
     font-weight: 700;
+    gap: 1rem;
+
+    h1 {
+        width: 100%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-align: center;
+    }
 
     img {
         height: 5rem;

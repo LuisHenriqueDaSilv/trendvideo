@@ -1,5 +1,6 @@
 import {useEffect, useState, useContext} from 'react'
 import {useCookies} from 'react-cookie'
+import {Link} from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import styles from './styles.module.scss'
@@ -119,7 +120,8 @@ export function VideosList(){
                 {
                     videos.map((video) => {
                         return (
-                            <div
+                            <a
+                                href={video.url}
                                 className={styles.video}
                                 key={video.video_data.id}
                                 style={{
@@ -130,7 +132,7 @@ export function VideosList(){
                                     <label>{video.video_data.likes}</label>
                                     <img alt="Likes" src="/Like.png"/>
                                 </div>
-                            </div>
+                            </a>
                         )
                     })
                 }

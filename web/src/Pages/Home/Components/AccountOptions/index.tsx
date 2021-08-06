@@ -1,4 +1,5 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
+import { useCookies } from 'react-cookie'
 import { useHistory } from 'react-router-dom'
 
 //services
@@ -8,9 +9,20 @@ import styles from './styles.module.scss'
 
 export function AccountOptions(){
 
+
     const history = useHistory()
 
     const [isOpeningMenu, setIsOpeningMenu ] = useState<boolean>(false)
+
+    const [userimage, setUserimage] = useState<any>()
+    const [username, setUsername] = useState<any>()
+
+    useEffect(() => {
+        const profileImage = localStorage.getItem('profileImage')
+        const username = localStorage.getItem('username')
+        setUserimage(profileImage)
+        setUsername(username)
+    }, [])
 
     const onClickShowMenu = () => {
         
@@ -29,10 +41,10 @@ export function AccountOptions(){
                 className={styles.showMoreButton}
             >
                 <img 
-                    alt="Luis Silva" 
-                    src="http://127.0.0.1:5000//account/image/18bfe6bcef914719a9f9f9637bdd60cb-2021-08-03.png"
+                    alt={username} 
+                    src={userimage}
                 />
-                <h1>Luis Silva</h1>
+                <h1>{username}</h1>
                 <img 
                     alt="open" 
                     className={styles.expandIcon} 

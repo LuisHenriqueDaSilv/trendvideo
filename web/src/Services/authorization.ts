@@ -5,12 +5,13 @@ export function isAuthenticated(){
 
     const token = cookies.get('token')
 
-    return(token && token !== '')
+    return(token && token != '')
 }
 
 export function logout(){
     const cookies = new Cookies()
 
     cookies.remove('token', {path: '/'})
+    localStorage.clear()
 
 }

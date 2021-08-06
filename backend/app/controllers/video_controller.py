@@ -18,6 +18,7 @@ def create(user):
     try:
 
         if user.status != 'OK':
+            
             return {
                 'status': 'error',
                 'message': f'Unable to post video with {user.status} account status '
