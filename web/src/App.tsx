@@ -7,14 +7,22 @@ import './Styles/global.scss'
 import {AlertContextProvider} from './Contexts/AlertContext'
 import {LoadingContextProvider} from './Contexts/LoadingContext'
 
+//Components
+import {Watermark} from './Components/Watermark'
+
 export default function App(){
     return(
-        <CookiesProvider>
-            <LoadingContextProvider>
-                <AlertContextProvider>
-                    <Routes/>
-                </AlertContextProvider>
-            </LoadingContextProvider>
-        </CookiesProvider>
+        <>
+        
+            <Watermark/>
+
+            <CookiesProvider>
+                <LoadingContextProvider>
+                    <AlertContextProvider>
+                        <Routes/>
+                    </AlertContextProvider>
+                </LoadingContextProvider>
+            </CookiesProvider>
+        </>
     )
 }

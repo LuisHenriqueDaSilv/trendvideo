@@ -3,12 +3,24 @@ import styles from './styles.module.scss'
 
 import {AlertProps} from '../../@types'
 
-export function Alert( {title, percentageToEnd, message, closeAlert} :AlertProps){
+export function Alert({
+    title, 
+    percentageToEnd, 
+    message, 
+    closeAlert
+}:AlertProps){
 
     return(
+
         <div className={styles.alertContainer}>
             <img 
-                src={title === 'error'? "/errorIcon.png":"/notificationIcon.png"}
+                src={
+                    title === 'error'? (
+                        "/icons/ErrorIcon.png"
+                    ):(
+                        "/icons/NotificationIcon.png"
+                    )
+                }
                 alt={title === 'error'? "errorIcon":"notificationIcon"}
             />
             <section
@@ -36,5 +48,7 @@ export function Alert( {title, percentageToEnd, message, closeAlert} :AlertProps
                 />
             </div>
         </div>
+
     )
+
 }

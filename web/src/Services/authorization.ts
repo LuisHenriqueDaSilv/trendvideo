@@ -5,7 +5,9 @@ export function isAuthenticated(){
 
     const token = cookies.get('token')
 
-    return(token && token != '')
+    const hasToken = token && token !== ''
+
+    return(hasToken)
 }
 
 export function logout(){

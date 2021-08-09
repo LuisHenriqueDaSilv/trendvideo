@@ -247,13 +247,14 @@ def get_videos_list(user):
                     'description': video.description,
                     'created_at': video.created_at,
                     'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
-                    'id': video.id
+                    'id': video.id,
+                    'name': video.name
                 },
                 'owner': {
                     'username': video.owner.username,
                     'created_at': video.owner.created_at,
                     'followers': video.owner.followers,
-                    'image_url': f'{request.url_root}/account/userimage/{video.owner.image_name}'
+                    'image_url': f'{request.url_root}/account/image/{video.owner.image_name}'
                 }
             })
 

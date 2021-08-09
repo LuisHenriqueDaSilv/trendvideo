@@ -27,14 +27,15 @@ export interface LoadingContextData {
 }
 
 
-export interface Video {
+export interface VideoType {
     url: string,
     video_data: {
         likes: string,
         id: number,
         description: string,
         created_at: string,
-        thumbnail_url: string
+        thumbnail_url: string,
+        name: string
     },
     owner: {
         username: string,
@@ -42,4 +43,11 @@ export interface Video {
         followers: string,
         image_url: string
     }
+}
+
+
+export interface VideoPageProps {
+    currentVideo: VideoType,
+    sortBy: 'latest' | 'oldest' | 'most_liked',
+    videos: VideoType[]
 }

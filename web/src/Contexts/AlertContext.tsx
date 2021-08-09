@@ -20,9 +20,7 @@ const AlertContext = createContext({} as AlertContextData)
 
 export default AlertContext
 
-export function AlertContextProvider(
-    {children}:contextProviderProps
-){
+export function AlertContextProvider({children}:contextProviderProps){
 
     const countdownTimeoutRef = useRef(0);
     const alertDuration = 20 //seconds

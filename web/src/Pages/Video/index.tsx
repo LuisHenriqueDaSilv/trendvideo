@@ -1,265 +1,238 @@
-import { FormEvent, useState } from 'react'
+import {useEffect, useState, useRef } from 'react'
+import {useHistory, useLocation} from 'react-router-dom'
+import Bounce from 'react-reveal/Bounce'
+
+
 import styles from './styles.module.scss'
 
-//http://localhost:3000/videos?current_video=15&sort_by=latest
+import {VideoPageProps, VideoType} from '../../@types'
+
+//Components
+import {EndListMessage} from './Components/EndListMessage'
 
 export function VideoPage(){
 
+    const countdownTimeoutRef = useRef(0);
+
+    const history = useHistory()
+    const location = useLocation() as {state: VideoPageProps}
+
     const [muteVideos, setMuteVideos] = useState<boolean>(true)
+    const [videos, setVideos] = useState<VideoType[]>([])
+    const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0)
+    const [previousVideoIndex, setPreviousVideoIndex] = useState<number>(0)
+    const [isToSlideVideoUp, setIsToSlideVideoUp] = useState<boolean>(true)
+
+    
+    useEffect(() => {
+
+        if(!location.state){
+            history.push('/')
+        }
+
+        const currentVideoIndex_ = location.state.videos.indexOf(location.state.currentVideo) as number
+        setVideos(location.state.videos)
+        setCurrentVideoIndex(currentVideoIndex_)
+    }, [])
+
+    useEffect(() => {
+
+        window.clearTimeout(countdownTimeoutRef.current)
+        countdownTimeoutRef.current = window.setTimeout(() => {
+            setPreviousVideoIndex(-10)
+        }, 500)
+    }, [previousVideoIndex])
 
     const autoResizeTextarea = (event:any) => {
         event.target.style.height = 'inherit'
         event.target.style.height = `${event.target.scrollHeight}px`
     }
 
-    const handleSubmitSendComment = (event:FormEvent) => {
-        event.preventDefault()
-        alert('teste')
+    const handleNextVideo = () => {
+        setIsToSlideVideoUp(false)
+
+        
+        if(currentVideoIndex <= videos.length - 1){
+            setPreviousVideoIndex(currentVideoIndex)
+            setCurrentVideoIndex(currentVideoIndex +1)
+        }
     }
 
+    const handlePreviousVideo = () => {
+        setIsToSlideVideoUp(true)
+
+        if(currentVideoIndex >= 0){
+            setPreviousVideoIndex(currentVideoIndex)
+            setCurrentVideoIndex(currentVideoIndex - 1)
+        }
+    }
+
+
     return (
-        <div className={styles.container}>
+        <>
+            <button 
+                className={styles.carouselController}
+                id={styles.previousButton}
+                onClick={handlePreviousVideo}
+            >
+                <img 
+                    alt="Previous"
+                    src="/icons/Caret.svg"
+                />
+            </button>
 
-            <div className={styles.accountAndOptionsContainer}>
+            { 
+                currentVideoIndex >= videos.length? <EndListMessage type="end"/>: (
+                    currentVideoIndex < 0? <EndListMessage type="initial"/>:(
+                        videos?.map((video, index) => {
 
-                <header>
-                    <div>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div className={styles.videoOwnerInfos}>
-                            <h1>LuisSilva</h1>
-                            <h2>875k followers</h2>
-                            <h2>Created 19/07/2020</h2>
-                        </div>
-                    </div>
-                    <button>Follow</button>
-                </header>
+                            if(currentVideoIndex > videos.length -1){
+                                return <EndListMessage type="end"/>
+                            }
 
-                <div className={styles.optionsContainer}>
-                    <button>
-                        <img
-                            src="/Like.png"
-                        />
-                        <label>Like</label>
-                    </button>
-                    <button onClick={() => {setMuteVideos(!muteVideos)}}>
-                        <img
-                            src="/unmute.png"
-                            id={styles.soundImage}
-                        />
-                        <label>Unmute</label>
-                    </button>
-                </div>
-            </div>
+                            if(index !== currentVideoIndex && previousVideoIndex !== index){
+                                return null
+                            }
 
-            <div className={styles.videoContainer}>
-                <button className={styles.previousButton}>
-                    <img src="/Caret.svg"/>
-                </button>
-                
-                <video
-                    autoPlay
-                    loop={true}
-                    muted={muteVideos}
-                >
-                    <source 
-                        src="http://127.0.0.1:5000/video/89f2ec467113496ca9c39cde389579bf-2021-08-06.ogv"
-                        type="video/ogg"
-                    />
-                    Your browser does not support the video tag.
-                </video>
+                            return (
+                                <div 
+                                    className={styles.pageContainer}
+                                    id={index === previousVideoIndex? styles.hidePageContainer:''}
+                                    style={{
+                                        zIndex: index === currentVideoIndex? 10:1
+                                    }}
+                                >
+                                    <Bounce 
+                                        bottom={isToSlideVideoUp? false:true}
+                                        top={isToSlideVideoUp? true:false}
+                                    >
 
-                <button className={styles.nextButton}>
-                    <img src="/Caret.svg"/>
-                </button>
-            </div>
+                                    <div className={styles.accountAndOptionsContainer}>
 
-            <div className={styles.comentsArea}>
-                <div className={styles.videoDescriptionContainer}>
-                    <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                    />
-                    <div className={styles.videoDescriptionAndInfosContainer}>
-                        <h1>Luis silva</h1>
-                        <p>
-                            A Microsoft revelou nesta semana, durante a Build 2014, imagens
-                            do que deve ser a sua versão do Windows para carros.
-                        </p>
+                                        <header>
+                                            <div>
+                                                <img 
+                                                    alt={video.owner.username}
+                                                    src={video.owner.image_url}
+                                                />
+                                                <div className={styles.videoOwnerInfos}>
+                                                    <h1>{video.owner.username}</h1>
+                                                    <h2>{video.owner.followers} followers</h2>
+                                                    <h2>Posted on {video.video_data.created_at.split(' ')[0]}</h2>
+                                                </div>
+                                            </div>
+                                            <button>Follow</button>
+                                        </header>
 
-                        <div className={styles.videoInfosContainer}>
-                            <div>
-                                <label>12k</label>
-                                <img
-                                    alt="Comments"
-                                    src="/Comments.png"
-                                />
-                            </div>
-                            <div>
-                                <label>136k</label>
-                                <img
-                                    alt="Likes"
-                                    src="/Like.png"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className={styles.commentsContainer}>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Usuario</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div>
-                    <div className={styles.comment}>
-                        <img 
-                            src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                        />
-                        <div>
-                            <h1>Ultimo</h1>
-                            <p>
-                                Creio que windows consiga evoluir a um ponto de estabilidade para 
-                                se tornar seguro o suficiente para controlar carros
-                            </p>
-                        </div>
-                    </div> 
-                </div>
-                
-                <form className={styles.createCommentContainer}>
-                    <textarea onChange={autoResizeTextarea} rows={1}/>
-                    <button type="submit">
-                        Comentar
-                    </button>
-                </form>
-            </div>
+                                        <div className={styles.optionsContainer}>
+                                            <button>
+                                                <img
+                                                    alt="Like"
+                                                    src="/icons/Like.png"
+                                                />
+                                                <label>Like</label>
+                                            </button>
+                                            <button onClick={() => {setMuteVideos(!muteVideos)}}>
+                                                <img
+                                                    src={muteVideos? '/icons/Mute.png':'/icons/Unmute.png'}
+                                                    alt="mute"
+                                                    id={styles.soundImage}
+                                                />
+                                                <label>
+                                                    {muteVideos? 'unmute': 'mute'}
+                                                </label>
+                                            </button>
+                                        </div>
+                                    </div>
 
-        </div>
+                                    <div className={styles.videoContainer}>
+                                        
+                                        <video
+                                            autoPlay
+                                            loop={true}
+                                            muted={muteVideos}
+                                            key={video.url}
+                                        >
+                                            <source 
+                                                src={video.url}
+                                                type="video/ogg"
+                                            />
+                                            Your browser does not support video.
+                                        </video>
+                                    </div>
+
+                                    <div className={styles.comentsArea}>
+                                        <div className={styles.videoDescriptionContainer}>
+                                            <img 
+                                                alt="Luis Silva"
+                                                src={video.owner.image_url}
+                                            />
+                                            <div className={styles.videoDescriptionAndInfosContainer}>
+                                                <h1>{video.owner.username}</h1>
+                                                <p>
+                                                    {video.video_data.description}
+                                                </p>
+
+                                                <div className={styles.videoInfosContainer}>
+                                                    <div>
+                                                        <label>12k</label>
+                                                        <img
+                                                            alt="Comments"
+                                                            src="/icons/Comments.png"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label>136k</label>
+                                                        <img
+                                                            alt="Likes"
+                                                            src="/icons/Like.png"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={styles.commentsContainer}>
+                                            <div className={styles.comment}>
+                                                <img 
+                                                    alt="Ultimo"
+                                                    src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
+                                                />
+                                                <div>
+                                                    <h1>Ultimo</h1>
+                                                    <p>
+                                                        bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  
+                                                    </p>
+                                                </div>
+                                            </div> 
+                                        </div>
+                                        
+                                        <form className={styles.createCommentContainer}>
+                                            <textarea onChange={autoResizeTextarea} rows={1}/>
+                                            <button type="submit">
+                                                Comment
+                                            </button>
+                                        </form>
+                                    </div>
+                                    </Bounce>
+
+                                </div>
+                        )
+                        })
+                    )
+                )
+            }
+            
+            <button 
+                className={styles.carouselController}
+                id={styles.nextButton}
+                onClick={handleNextVideo}
+            >
+                <img
+                    alt="next" 
+                    src="/icons/Caret.svg"
+                />
+
+            </button>
+        </>
     )
 }

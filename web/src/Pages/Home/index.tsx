@@ -59,7 +59,7 @@ export function Home(){
                 <div className={styles.searchBarContainer}>
                     <input type="text"/>
                     <button>
-                        <img alt="search icon" src="/Search.png"/>
+                        <img alt="search icon" src="/icons/Search.png"/>
                     </button>
                 </div>
                 <button className={styles.searchButton}>

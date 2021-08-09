@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react'
-import { useCookies } from 'react-cookie'
 import { useHistory } from 'react-router-dom'
 
 //services
@@ -51,7 +50,7 @@ export function AccountOptions(){
                     id={
                         isOpeningMenu?styles.flipedExpandIcon:''
                     }
-                    src="/Caret.svg"/>
+                    src="/icons/Caret.svg"/>
             </button>
             <div 
                 className={styles.accountOptionsContainer}
