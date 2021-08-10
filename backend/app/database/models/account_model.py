@@ -16,6 +16,8 @@ class Account(db.Model):
     created_at = db.Column(db.Text)
 
     videos = db.relationship('Video', backref='owner')
+    likes = db.relationship('Like', backref='user')
+
 
     def __init__(self, username, email, password, confirmation_uuid, image_name):
 

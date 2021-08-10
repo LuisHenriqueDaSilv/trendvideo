@@ -18,6 +18,9 @@ CORS(app)
 
 
 #Logger configs
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+
 log_format = '%(asctime)s:%(levelname)s:%(filename)s:%(message)s'
 logging.basicConfig(
     filename='app/logs/logs.log',
@@ -29,14 +32,15 @@ logging.basicConfig(
 
 #Database config
 db = SQLAlchemy(app)
-migrate = Migrate(app, db, directory='./app/models/migrations')
+migrate = Migrate(app, db, directory='./app/database/models/migrations')
 
 
 #Blueprints
-from .routes import account_crud_routes, video_crud_routes
-app.register_blueprint(account_crud_routes.router)
-app.register_blueprint(video_crud_routes.router)
+from .controllers.VideoController.routes import videos_router
+from .controllers.AccountController.routes import accounts_router
+app.register_blueprint(videos_router)
+app.register_blueprint(accounts_router)
 
 
 #Database models
-from .models import account_model, video_model #Used in database migration
+from .database.models import account_model, video_model, like_model #Used in database migration

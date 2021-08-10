@@ -4,7 +4,7 @@ import jwt
 import dotenv
 
 #Database Models
-from ..models import Account
+from ..database.models import Account
 
 dotenv_variables = dotenv.dotenv_values('.env')
 JWT_SECRET_KEY = dotenv_variables['JWT_SECRET_KEY']
@@ -44,7 +44,7 @@ def verify_token(function):
             if user_account is None:
                 raise
 
-        except Exception as error:
+        except Exception:
             return {
                 'status': 'error',
                 'message': 'Invalid authorization token'

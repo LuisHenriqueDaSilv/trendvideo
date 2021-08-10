@@ -33,6 +33,8 @@ export function VideoPage(){
         const currentVideoIndex_ = location.state.videos.indexOf(location.state.currentVideo) as number
         setVideos(location.state.videos)
         setCurrentVideoIndex(currentVideoIndex_)
+        
+    // eslint-disable-next-line
     }, [])
 
     useEffect(() => {
@@ -42,11 +44,6 @@ export function VideoPage(){
             setPreviousVideoIndex(-10)
         }, 500)
     }, [previousVideoIndex])
-
-    const autoResizeTextarea = (event:any) => {
-        event.target.style.height = 'inherit'
-        event.target.style.height = `${event.target.scrollHeight}px`
-    }
 
     const handleNextVideo = () => {
         setIsToSlideVideoUp(false)
@@ -67,6 +64,15 @@ export function VideoPage(){
         }
     }
 
+    const handleLikeVideo = (videoId:any) => {
+        alert(videoId)
+    }
+
+
+    const autoResizeTextarea = (event:any) => {
+        event.target.style.height = 'inherit'
+        event.target.style.height = `${event.target.scrollHeight}px`
+    }
 
     return (
         <>
@@ -125,12 +131,17 @@ export function VideoPage(){
                                         </header>
 
                                         <div className={styles.optionsContainer}>
-                                            <button>
+                                            <button
+                                                id={video.video_data.liked?'':styles.unlikedButton}
+                                                onClick={() => {handleLikeVideo(video.video_data.id)}}
+                                            >
                                                 <img
                                                     alt="Like"
                                                     src="/icons/Like.png"
                                                 />
-                                                <label>Like</label>
+                                                <label>
+                                                    {video.video_data.liked? 'Liked':'Like'}
+                                                </label>
                                             </button>
                                             <button onClick={() => {setMuteVideos(!muteVideos)}}>
                                                 <img
@@ -182,7 +193,7 @@ export function VideoPage(){
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label>136k</label>
+                                                        <label>{video.video_data.likes}</label>
                                                         <img
                                                             alt="Likes"
                                                             src="/icons/Like.png"

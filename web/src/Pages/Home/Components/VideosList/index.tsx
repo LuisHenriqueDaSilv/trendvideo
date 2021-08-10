@@ -48,6 +48,7 @@ export function VideosList(){
                     
                 }else if(error_message === 'Invalid authorization token'){
                     logout()
+                    history.push('/')
                 }
 
             }else {

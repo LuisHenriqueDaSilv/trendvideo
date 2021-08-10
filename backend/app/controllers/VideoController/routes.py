@@ -1,38 +1,28 @@
 from flask import Blueprint, Response, send_file
 
 #Middlewares
-from ..middlewares.verify_token import verify_token
+from ...middlewares.verify_token import verify_token
 
-from ..controllers import video_controller
+from .controller import  VideoController
 
-router = Blueprint(
+videos_router = Blueprint(
     'video_crud',
     __name__
 )
 
-
-@router.route('/videos', methods=['GET'])
+@videos_router.route('/videos', methods=['GET'])
 @verify_token
-def get_video_list(user):
-    videos = video_controller.get_videos_list(user)
+def index(user):
+    videos = VideoController.getVideosList(user)
     return videos
 
-@router.route('/video/create', methods=['POST'])
+@videos_router.route('/video/create', methods=['POST'])
 @verify_token
-def video_create(user):
-    return video_controller.create(user)
+def create(user):
+    return VideoController.create(user)
 
-
-@router.route('/video/delete', methods=['DELETE'])
-@verify_token
-def video_update(user):
-    return video_controller.delete(user)
-
-
-#static files routes
-
-@router.route('/video/<path:filename>', methods=['GET'])
-def get_video(filename):
+@videos_router.route('/video/<path:filename>', methods=['GET'])
+def read(filename):
 
     def render_video():
 
@@ -60,8 +50,9 @@ def get_video(filename):
 
     return Response(render_video(), mimetype="video/ogg")
 
-@router.route('/videos/thumbnail/<path:filename>', methods=['GET'])
-def get_video_thumbnail(filename):
+
+@videos_router.route('/videos/thumbnail/<path:filename>', methods=['GET'])
+def read_thumbnail(filename):
 
     try:
         return send_file(f'database/files/thumbnails/{filename}')
@@ -71,3 +62,12 @@ def get_video_thumbnail(filename):
             'message': 'Image not found'
         }, 404
 
+@videos_router.route('/video/delete', methods=['DELETE'])
+@verify_token
+def delete(user):
+    return VideoController.delete(user)
+
+@videos_router.route('/video/like')
+@verify_token
+def like(user):
+    return VideoController.like(user)
