@@ -1,4 +1,5 @@
-import {useEffect, useState, useRef } from 'react'
+import {useEffect, useState, useRef, useContext } from 'react'
+import {useCookies} from 'react-cookie'
 import {useHistory, useLocation} from 'react-router-dom'
 import Bounce from 'react-reveal/Bounce'
 
@@ -10,18 +11,33 @@ import {VideoPageProps, VideoType} from '../../@types'
 //Components
 import {EndListMessage} from './Components/EndListMessage'
 
+//Services
+import api from '../../Services/api'
+import {logout} from '../../Services/authorization'
+
+//Contexts
+import AlertContext from '../../Contexts/AlertContext'
+
 export function VideoPage(){
 
     const countdownTimeoutRef = useRef(0);
 
+    const [cookies] = useCookies(['authorization'])
+
     const history = useHistory()
     const location = useLocation() as {state: VideoPageProps}
+    
+    const {showAlert} = useContext(AlertContext)
 
     const [muteVideos, setMuteVideos] = useState<boolean>(true)
     const [videos, setVideos] = useState<VideoType[]>([])
     const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0)
     const [previousVideoIndex, setPreviousVideoIndex] = useState<number>(0)
     const [isToSlideVideoUp, setIsToSlideVideoUp] = useState<boolean>(true)
+    const [sortBy, setSortBy] = useState<string>()
+
+    const [loadingMoreVideos, setLoadingMoreVideos] = useState<boolean>(false)
+    const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true)
 
     
     useEffect(() => {
@@ -33,6 +49,7 @@ export function VideoPage(){
         const currentVideoIndex_ = location.state.videos.indexOf(location.state.currentVideo) as number
         setVideos(location.state.videos)
         setCurrentVideoIndex(currentVideoIndex_)
+        setSortBy(location.state.sortBy)
         
     // eslint-disable-next-line
     }, [])
@@ -44,6 +61,14 @@ export function VideoPage(){
             setPreviousVideoIndex(-10)
         }, 500)
     }, [previousVideoIndex])
+
+    useEffect(() => {
+        if(currentVideoIndex === videos.length-2){
+            handleGetMoreVideos()
+        }
+
+    // eslint-disable-next-line
+    }, [currentVideoIndex])
 
     const handleNextVideo = () => {
         setIsToSlideVideoUp(false)
@@ -64,8 +89,136 @@ export function VideoPage(){
         }
     }
 
-    const handleLikeVideo = (videoId:any) => {
-        alert(videoId)
+    const handleLikeVideo = async (video:VideoType) => {
+
+        const token = cookies.token
+
+        const headers = {
+            authorization: `Bearer ${token}`
+        }
+
+        const data = new FormData()
+
+        data.append('videoId', video.video_data.id.toString())
+
+        const response = await api.post(
+            '/video/like', 
+            data,
+            {
+                headers
+            }
+        ).catch((error) => {
+
+            if(error.response){
+
+                const error_message = error.response.data.message
+
+                if(error_message === 'video not found'){
+
+                    showAlert({
+                        message: 'Probably this video was deleted',
+                        title: 'error'
+                    })
+
+                }else if(error_message === 'Invalid authorization token'){
+
+                    logout()
+                    history.push('/')
+
+                }else {
+                    showAlert({
+                        message: error_message,
+                        title: 'error'
+                    })
+                }
+
+            }else {
+                showAlert({
+                    message: 'Something went wrong in get videos process',
+                    title: 'error'
+                })
+            }
+
+            return 
+        }) as any
+
+        if(!response){
+            return
+        }
+        
+        const newVideosData = [...videos]
+        const likedVideoIndex = newVideosData.indexOf(video)
+
+        if(response.data.message === 'like'){
+
+            const likes = Number(newVideosData[likedVideoIndex].video_data.likes)
+
+            if(!Number.isNaN(likes)){
+                newVideosData[likedVideoIndex].video_data.likes = (likes + 1).toString()
+            }
+
+            newVideosData[likedVideoIndex].video_data.liked = true
+        }else {
+
+            const likes = Number(newVideosData[likedVideoIndex].video_data.likes)
+
+            if(!Number.isNaN(likes)){
+                newVideosData[likedVideoIndex].video_data.likes = (likes - 1).toString()
+            }
+
+            newVideosData[likedVideoIndex].video_data.liked = false
+        }
+
+        setVideos(newVideosData)
+
+    }
+
+    const handleGetMoreVideos = async () => {
+
+        if(!hasMoreVideos || loadingMoreVideos){
+            return
+        }
+        
+        setLoadingMoreVideos(true)
+
+        const token = cookies.token
+
+        const headers = {
+            authorization: `Bearer ${token}`
+        }
+
+        const response = await api.get(`/videos?order_by=${sortBy}&start=${videos.length}`, {headers}).catch((error) => {
+
+            if(error.response){
+
+                const error_message = error.response.data.message
+
+                if(error_message === 'Could not find any video'){
+                    setHasMoreVideos(false)
+                    
+                }else if(error_message === 'Invalid authorization token'){
+                    logout()
+                    history.push('/')
+                }
+
+            }else {
+                showAlert({
+                    message: 'Something went wrong in get videos process',
+                    title: 'error'
+                })
+            }
+
+            return 
+        })
+
+        if(!response){
+            setLoadingMoreVideos(false)
+            return
+        }
+
+        setLoadingMoreVideos(false)
+
+        setVideos([...videos, ...response.data])
     }
 
 
@@ -88,8 +241,9 @@ export function VideoPage(){
             </button>
 
             { 
-                currentVideoIndex >= videos.length? <EndListMessage type="end"/>: (
+                currentVideoIndex >= videos.length? <EndListMessage type={loadingMoreVideos? "loading":"end"}/>: (
                     currentVideoIndex < 0? <EndListMessage type="initial"/>:(
+
                         videos?.map((video, index) => {
 
                             if(currentVideoIndex > videos.length -1){
@@ -117,23 +271,31 @@ export function VideoPage(){
 
                                         <header>
                                             <div>
-                                                <img 
+                                                <img
                                                     alt={video.owner.username}
                                                     src={video.owner.image_url}
                                                 />
                                                 <div className={styles.videoOwnerInfos}>
                                                     <h1>{video.owner.username}</h1>
-                                                    <h2>{video.owner.followers} followers</h2>
+                                                    <h2>
+                                                        {video.owner.followers} followers
+                                                    </h2>
                                                     <h2>Posted on {video.video_data.created_at.split(' ')[0]}</h2>
                                                 </div>
                                             </div>
-                                            <button>Follow</button>
+                                            <button
+                                                id={
+                                                    video.owner.followed? styles.followedButton:''
+                                                }
+                                            >
+                                                {video.owner.followed? 'Followed':'Follow'}
+                                            </button>
                                         </header>
 
                                         <div className={styles.optionsContainer}>
                                             <button
                                                 id={video.video_data.liked?'':styles.unlikedButton}
-                                                onClick={() => {handleLikeVideo(video.video_data.id)}}
+                                                onClick={() => {handleLikeVideo(video)}}
                                             >
                                                 <img
                                                     alt="Like"

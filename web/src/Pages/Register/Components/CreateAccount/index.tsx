@@ -103,7 +103,7 @@ export function CreateAccount(){
             return
         }
 
-        if(response.data.status === 'OK'){
+        if(response.data.status === 'ok'){
             showAlert({
                 message:'Ok, verify your email to confirm your account.',
                 title: 'notification'

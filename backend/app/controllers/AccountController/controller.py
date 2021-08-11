@@ -14,7 +14,7 @@ from ...emails.confirmation_email import gen_confirmation_email_body
 from app import db, app
 
 #Database Models
-from ...database.models import Account
+from ...database.models import Account, Follow
 
 #Getting dotenv variables
 dotenv_variables = dotenv_values('.env')
@@ -26,7 +26,6 @@ class AccountController():
 
     @staticmethod
     def create():
-
 
         try:
 
@@ -254,7 +253,7 @@ class AccountController():
             }, 500
     
     @staticmethod
-    def read():
+    def login():
 
         try:
 
@@ -301,7 +300,7 @@ class AccountController():
             }
 
             return {
-                'status': 'OK',
+                'status': 'ok',
                 'token': token,
                 'user': user_infos_to_send,
             }
@@ -314,3 +313,86 @@ class AccountController():
                 'status': 'error', 
                 'message':'something unexpected happened'
             }, 500
+
+    @staticmethod
+    def follow(user):
+
+        try: 
+
+            followed_user_id = request.form.get('followed_user_id')
+
+            try: 
+                
+                followed_user_id = int(followed_user_id)
+            except:
+                return {
+                    'status': 'error',
+                    'message': 'Invalid followed user id'
+                }, 400
+
+            if not followed_user_id:
+                return {
+                    'status': 'error',
+                    'message': 'Followed user id is not provided'
+                }, 400
+
+            if followed_user_id == user.id:
+                return {
+                    'status': 'error',
+                    'message': "You can't follow yourself"
+                }, 400
+
+            followed_user = Account.query.filter_by(id=followed_user_id).first()
+
+            if not followed_user:
+                return {
+                    'status': 'error',
+                    'message': 'User not found'
+                }, 404
+
+
+            existing_follow = Follow.query.filter_by(
+                user_id=user.id, followed_user_id=followed_user.id
+            ).first()
+
+            
+
+            if existing_follow:
+
+
+                db.session.delete(existing_follow)
+                followed_user.followers = followed_user.followers - 1
+                db.session.commit()
+
+                return {
+                    'status': 'ok',
+                    'message': 'Unfollow'
+                }
+
+            else:
+
+                follow = Follow(
+                    user_id=user.id,
+                    followed_user_id=followed_user.id
+                )
+
+                followed_user.followers = followed_user.followers + 1
+                db.session.add(follow)
+                db.session.commit()
+
+                return {
+                    'status': 'ok', 
+                    'message': 'Follow'
+                }
+
+
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error', 
+                'message':'something unexpected happened'
+            }, 500
+
+

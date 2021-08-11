@@ -9,7 +9,7 @@ class Account(db.Model):
     username = db.Column(db.Text,  unique=True)
     email = db.Column(db.Text, unique=True)
     password = db.Column(db.Text)
-    followers = db.Column(db.Text)
+    followers = db.Column(db.Integer)
     confirmation_uuid = db.Column(db.Text)
     status = db.Column(db.Text)
     image_name = db.Column(db.Text)
@@ -17,6 +17,7 @@ class Account(db.Model):
 
     videos = db.relationship('Video', backref='owner')
     likes = db.relationship('Like', backref='user')
+    follows = db.relationship('Follow', backref='follower')
 
 
     def __init__(self, username, email, password, confirmation_uuid, image_name):

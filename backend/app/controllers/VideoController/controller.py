@@ -156,7 +156,7 @@ class VideoController():
                 return {
                     'status': 'error',
                     'message': 'this video is not yours'
-                }
+                }, 401
             
 
 
@@ -227,6 +227,10 @@ class VideoController():
                     start
                 ).all()
 
+
+            followeds_users_ids = [follow.followed_user_id for follow in user.follows]
+            liked_videos_ids = [like.video_id for like in user.likes ]
+
             for video in videos:
 
                 likes_str = str(video.likes)
@@ -241,15 +245,16 @@ class VideoController():
                 elif len(likes_str) > 3:
                     likes_complement = 'k'
                     likes_str = likes_str[:-3]
-
                     
                 liked = False
 
-                for like in user.likes:
-                    if like.video_id == video.id:
-                        liked = True
+                if video.id in liked_videos_ids:
+                    liked = True
 
-                ### to do: add followed<boolean>
+                if video.owner.id in followeds_users_ids:
+                    is_following_video_owner = True
+                else: 
+                    is_following_video_owner = False
 
                 videos_list.append({
                     'url': f'{request.url_root}/video/{video.name}',
@@ -266,7 +271,9 @@ class VideoController():
                         'username': video.owner.username,
                         'created_at': video.owner.created_at,
                         'followers': video.owner.followers,
-                        'image_url': f'{request.url_root}/account/image/{video.owner.image_name}'
+                        'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
+                        'followed': is_following_video_owner,
+                        'id': video.owner.id
                     }
                 })
 
@@ -290,11 +297,6 @@ class VideoController():
 
     @staticmethod
     def like(user):
-        
-        # Get video id from request
-        # Test if video id is valid
-        # add more 1 in video likes
-        # add video in liked videos 
 
         try: 
 
@@ -304,7 +306,7 @@ class VideoController():
                 return {
                     'status': 'error',
                     'message': 'Video id not provided'
-                }
+                }, 400
 
             
             video = Video.query.filter_by(id=video_id).first()
@@ -312,7 +314,7 @@ class VideoController():
                 return {
                     'status': 'error',
                     'message': 'video not found'
-                }
+                }, 404
 
             like = Like.query.filter_by(video_id=video_id, user_id=user.id).first()
 

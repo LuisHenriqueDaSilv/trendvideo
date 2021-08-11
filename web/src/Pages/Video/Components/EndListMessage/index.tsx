@@ -2,7 +2,7 @@ import Bounce from 'react-reveal/Bounce'
 
 import styles from './styles.module.scss'
 
-export function EndListMessage({type}:{type:'initial'|'end'}){
+export function EndListMessage({type}:{type:'initial'|'end'|'loading'}){
 
     return (
         <div
@@ -18,9 +18,16 @@ export function EndListMessage({type}:{type:'initial'|'end'}){
                             This is the beginning of everything
                         </h1>
                     ): (
-                        <h1>
-                            This is the end! try reload page to get latests videos or come back
-                        </h1>
+                        type==="loading"? (
+                            <h1>
+                                Loading more videos, await
+                            </h1>
+                        ): (
+
+                            <h1>
+                                This is the end! try reload page to get latests videos or come back
+                            </h1>
+                        )
                     )
                 }
             </Bounce>

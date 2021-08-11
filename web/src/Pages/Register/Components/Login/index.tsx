@@ -74,7 +74,7 @@ export function Login(){
             return
         }
         
-        if(response.data.status === 'OK'){
+        if(response.data.status === 'ok'){
             
             setCookie('token', response.data.token, {path: '/'})
             localStorage.setItem('profileImage', response.data.user.image_url)

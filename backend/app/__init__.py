@@ -43,4 +43,4 @@ app.register_blueprint(accounts_router)
 
 
 #Database models
-from .database.models import account_model, video_model, like_model #Used in database migration
+from .database.models import account_model, video_model, like_model, follow_model #Used in database migration

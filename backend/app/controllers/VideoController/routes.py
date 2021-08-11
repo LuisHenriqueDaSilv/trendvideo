@@ -67,7 +67,7 @@ def read_thumbnail(filename):
 def delete(user):
     return VideoController.delete(user)
 
-@videos_router.route('/video/like')
+@videos_router.route('/video/like', methods=['POST'])
 @verify_token
 def like(user):
     return VideoController.like(user)

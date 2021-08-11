@@ -42,7 +42,9 @@ export interface VideoType {
         username: string,
         created_at: string,
         followers: string,
-        image_url: string
+        image_url: string,
+        followed: boolean,
+        id: number
     }
 }
 
