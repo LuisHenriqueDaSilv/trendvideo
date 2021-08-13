@@ -1,5 +1,6 @@
-from app import db
 from datetime import datetime
+
+from app import db
 
 class Video(db.Model):
 
@@ -11,9 +12,10 @@ class Video(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.Text)
     thumbnail = db.Column(db.Text)
-    likes = db.Column(db.Integer)
     
     owner_id = db.Column(db.Integer, db.ForeignKey('accounts.id'))
+    
+    likes = db.relationship('Like', backref='video')
 
     def __init__(self, name, owner_id, description, thumbnail):
         self.name = name
@@ -21,7 +23,6 @@ class Video(db.Model):
         self.description = description
         self.created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.thumbnail = thumbnail
-        self.likes = 0
 
     def __repr__(self):
         return f"<Video {self.name}>"

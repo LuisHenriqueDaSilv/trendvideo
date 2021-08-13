@@ -1,12 +1,7 @@
+import api from './Api'
 import {Cookies} from 'react-cookie'
 
-//Types
-import {VideoType} from '../@types'
-
-//Services
-import api from './Api'
-
-export default async function likeVideo(video:VideoType){
+export default async function FollowAccount(accountId:number){
 
     const cookies = new Cookies()
     const token = cookies.get('token')
@@ -16,14 +11,12 @@ export default async function likeVideo(video:VideoType){
     }
 
     const data = new FormData()
-    data.append('videoId', video.video_data.id.toString())
+    data.append('followed_user_id', accountId.toString())
 
     const response = await api.post(
-        '/video/like', 
+        '/account/follow', 
         data,
-        {
-            headers
-        }
+        {headers}
     ).catch((error) => {
         if(error.response){
             const error_message = error.response.data.message
@@ -32,27 +25,18 @@ export default async function likeVideo(video:VideoType){
                 error: true,
                 error_message
             })
-
         }else{
             return({
                 error:true,
-                error_message: 'Something went wrong in like video process'
+                error_message: 'Something went wrong in follow account process'
             })
         }
 
     }) as any
 
-    if(!response){
-        return({
-            error: true,
-            error_message: 'Something went wrong in like video process'
-        })
-    }
-
     if(response.error){
         return(response)
+    }else{
+        return(response.data)
     }
-    
-    return(response.data)
-
 }

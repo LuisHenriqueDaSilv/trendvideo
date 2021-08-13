@@ -41,7 +41,7 @@ def verify_token(function):
             
             user_account = Account.query.filter_by(id=user_id).first()
 
-            if user_account is None:
+            if not user_account:
                 raise
 
         except Exception:

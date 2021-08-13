@@ -5,7 +5,7 @@ import { Link, useHistory } from 'react-router-dom'
 import styles from './styles.module.scss'
 
 //Services 
-import api from '../../../../Services/api'
+import api from '../../../../Services/Api'
 
 //Utils 
 import {checkPassword, checkUsername} from '../../../../utils/checkUserInfo'

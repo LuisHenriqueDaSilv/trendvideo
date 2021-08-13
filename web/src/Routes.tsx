@@ -1,7 +1,7 @@
 import {BrowserRouter, Route, Switch, Redirect} from 'react-router-dom'
 
 //Services
-import {isAuthenticated} from './Services/authorization'
+import {isAuthenticated} from './Services/Authorization'
 
 //Pages
 import {Register} from './Pages/Register'

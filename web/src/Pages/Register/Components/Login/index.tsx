@@ -3,7 +3,7 @@ import { Link, useHistory } from 'react-router-dom'
 import {useCookies} from 'react-cookie'
 
 //Services
-import api from '../../../../Services/api'
+import api from '../../../../Services/Api'
 
 //contexts
 import AlertContext from '../../../../Contexts/AlertContext'

@@ -1,7 +1,7 @@
 from flask import request
 from uuid import uuid4
 from datetime import date
-import sqlalchemy 
+import sqlalchemy
 import cv2
 import math
 import os
@@ -9,11 +9,11 @@ import json
 
 from app import app, db
 
-#Models
+# Models
 from ...database.models import Video, Like
 
-class VideoController():
 
+class VideoController():
 
     @staticmethod
     def create(user):
@@ -21,36 +21,34 @@ class VideoController():
         try:
 
             if user.status != 'OK':
-                
                 return {
                     'status': 'error',
-                    'message': f'Unable to post video with {user.status} account status '
+                    'message': f'Unable to post video with {user.status} account status'
                 }, 400
-
 
             description = request.form.get('description')
 
-            if description is None:
+            if not description:
                 description = ''
 
             if len(description) >= 200:
                 return {
                     'status': 'error',
-                    'message': 'Invalid description'
+                    'message': 'Invalid description length'
                 }, 400
 
-
-            
             video = request.files.get('video')
 
-            if video is None:
+            if not video:
                 return {
                     'status': 'error',
                     'message': 'Invalid video'
                 }, 400
 
             allowed_video_mimetypes = [
-                'video/webm', 'video/ogg', 'video/mp4'
+                'video/webm', 
+                'video/ogg', 
+                'video/mp4'
             ]
 
             if video.mimetype not in allowed_video_mimetypes:
@@ -59,19 +57,17 @@ class VideoController():
                     'message': 'Invalid video format'
                 }, 400
 
-
             video_name = f'{uuid4().hex}-{date.today()}.ogv'
             video.save(f'./app/database/files/videos/{video_name}')
 
-            video_cv2 = cv2.VideoCapture(f'./app/database/files/videos/{video_name}')
-
+            video_cv2 = cv2.VideoCapture(
+                f'./app/database/files/videos/{video_name}'
+            )
             video_fps = video_cv2.get(cv2.CAP_PROP_FPS)
             video_frames = video_cv2.get(cv2.CAP_PROP_FRAME_COUNT)
-
             video_duration = math.floor(float(video_frames) / float(video_fps))
 
-            if video_duration > 60* 2: # 2 minutes
-
+            if video_duration > 60 * 2:  # 2 minutes
                 os.remove(f'./app/database/files/videos/{video_name}')
 
                 return {
@@ -79,34 +75,41 @@ class VideoController():
                     'message': 'video length too long'
                 }, 400
 
-
-            allowed_thumbnail_mimetypes = [
-                "image/png", "image/jpeg"
-            ]
-
             video_thumbnail = request.files.get('thumbnail')
-            
-            thumbnail_name =  f'{uuid4().hex}-{date.today()}.png'
+
+            thumbnail_name = f'{uuid4().hex}-{date.today()}.png'
 
             if video_thumbnail:
-
+                allowed_thumbnail_mimetypes = [
+                    "image/png", 
+                    "image/jpeg"
+                ]
+                
                 if video_thumbnail.mimetype not in allowed_thumbnail_mimetypes:
-                    return  {
+                    return {
                         'status': 'error',
                         'message': 'Invalid thumbnail format'
                     }, 400
+                    
+                else: 
+                    video_thumbnail.save(
+                        f'./app/database/files/thumbnails/{thumbnail_name}'
+                    )
 
-                video_thumbnail.save(f'./app/database/files/thumbnails/{thumbnail_name}')
-
-            else: 
-                video_cv2.set(1, video_frames/3)
-                ret, frame = video_cv2.read()
-                cv2.imwrite(f'./app/database/files/thumbnails/{thumbnail_name}', frame)
+            else:
+                video_cv2.set(
+                    1,
+                    video_frames/3
+                ) # 1 Frame in 1 third of the video
                 
-
+                ret, frame = video_cv2.read()
+                cv2.imwrite(
+                    f'./app/database/files/thumbnails/{thumbnail_name}',
+                    frame
+                )
 
             video_to_save = Video(
-                name=video_name, 
+                name=video_name,
                 owner_id=user.id,
                 description=description,
                 thumbnail=thumbnail_name
@@ -114,7 +117,6 @@ class VideoController():
 
             db.session.add(video_to_save)
             db.session.commit()
-
 
             return {'status': 'ok'}
 
@@ -129,7 +131,7 @@ class VideoController():
 
     @staticmethod
     def delete(user):
-        
+
         try:
 
             video_id = request.form.get('video_id')
@@ -141,35 +143,32 @@ class VideoController():
                     'status': 'error',
                     'message': 'invalid video id'
                 }, 400
-            
 
+            video = Video.query.filter_by(
+                id=video_id
+            ).first()
 
-            video = Video.query.filter_by(id=video_id).first()
-
-            if video is None:
+            if not video:
                 return {
                     'status': 'error',
                     'message': 'Video not found'
                 }, 400
 
-            if video.owner_id != user.id:
+            if video.owner_id == user.id:
+                db.session.delete(video)
+                db.session.commit()
+
+                os.remove(f'./app/database/files/videos/{video.name}')
+
+                return {'status': 'ok'}
+            else:
                 return {
                     'status': 'error',
                     'message': 'this video is not yours'
                 }, 401
-            
-
-
-            db.session.delete(video)
-            db.session.commit()
-
-            os.remove(f'./app/database/files/videos/{video.name}')
-
-
-            return {'status': 'ok'}
 
         except Exception as error:
-            
+
             app.logger.error(error)
 
             return {
@@ -185,14 +184,14 @@ class VideoController():
             args = dict(request.args)
 
             order_by = args.get('order_by') or 'latest'  # default news
-            start = args.get('start') or 0 # default 0
+            start = args.get('start') or 0  # default 0
 
             try:
                 start = int(start)
             except Exception:
                 return {
-                    'status': 'error', 
-                    'message': 'Start not is a number'
+                    'status': 'error',
+                    'message': 'Start param not is a number'
                 }, 400
 
             videos_list = []
@@ -208,17 +207,18 @@ class VideoController():
                 ).all()
 
             elif order_by == 'most_liked':
-
-                videos = Video.query.order_by(
-                    sqlalchemy.desc(Video.likes)
-                ).limit(
-                    25
-                ).offset(
-                    start
-                ).all()
+                
+                videos = Video.query.all()
+                                
+                def sort_by_key(video):
+                    return len(video.likes)
+                
+                videos.sort(key=sort_by_key, reverse=True)
+                
+                videos = videos[start:start+25:1]
 
             else:
-            
+
                 videos = Video.query.order_by(
                     sqlalchemy.desc(Video.created_at)
                 ).limit(
@@ -227,13 +227,17 @@ class VideoController():
                     start
                 ).all()
 
-
-            followeds_users_ids = [follow.followed_user_id for follow in user.follows]
-            liked_videos_ids = [like.video_id for like in user.likes ]
+            followeds_users_ids = [
+                follow.followed_user_id for follow in user.follows
+            ]
+            
+            liked_videos_ids = [
+                like.video_id for like in user.likes
+            ]
 
             for video in videos:
 
-                likes_str = str(video.likes)
+                likes_str = str(len(video.likes))
                 likes_complement = ''
 
                 if len(likes_str) > 9:
@@ -245,16 +249,10 @@ class VideoController():
                 elif len(likes_str) > 3:
                     likes_complement = 'k'
                     likes_str = likes_str[:-3]
-                    
-                liked = False
 
-                if video.id in liked_videos_ids:
-                    liked = True
+                liked = video.id in liked_videos_ids
 
-                if video.owner.id in followeds_users_ids:
-                    is_following_video_owner = True
-                else: 
-                    is_following_video_owner = False
+                is_following_video_owner = video.owner.id in followeds_users_ids
 
                 videos_list.append({
                     'url': f'{request.url_root}/video/{video.name}',
@@ -282,9 +280,8 @@ class VideoController():
                     'status': 'error',
                     'message': 'Could not find any video'
                 }, 404
-                
-            return  json.dumps(videos_list)
-            
+
+            return json.dumps(videos_list)
 
         except Exception as error:
 
@@ -298,7 +295,13 @@ class VideoController():
     @staticmethod
     def like(user):
 
-        try: 
+        try:
+            
+            if user.status != 'OK':
+                return {
+                    'status': 'error',
+                    'message': f'Unable like video with {user.status} account status'
+                }, 400
 
             video_id = request.form.get('videoId')
 
@@ -308,19 +311,20 @@ class VideoController():
                     'message': 'Video id not provided'
                 }, 400
 
-            
             video = Video.query.filter_by(id=video_id).first()
+            
             if not video:
                 return {
                     'status': 'error',
-                    'message': 'video not found'
+                    'message': 'Video not found'
                 }, 404
 
-            like = Like.query.filter_by(video_id=video_id, user_id=user.id).first()
+            like = Like.query.filter_by(
+                video_id=video_id, user_id=user.id
+            ).first()
 
             if like:
 
-                video.likes = video.likes - 1
                 db.session.delete(like)
                 db.session.commit()
 
@@ -328,21 +332,20 @@ class VideoController():
                     'status': 'ok',
                     'message': 'unlike'
                 }
+            else:
+                
 
+                like = Like(
+                    video_id=video_id,
+                    user_id=user.id
+                )
+                db.session.add(like)
+                db.session.commit()
 
-            video.likes = video.likes + 1
-
-            like = Like(
-                video_id=video_id,
-                user_id=user.id
-            )
-            db.session.add(like)
-            db.session.commit()
-
-            return {
-                'status': 'ok',
-                'message': 'like'
-            }
+                return {
+                    'status': 'ok',
+                    'message': 'like'
+                }
 
         except Exception as error:
 

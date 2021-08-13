@@ -1,13 +1,11 @@
 import {useEffect, useState, useContext} from 'react'
-import {useCookies} from 'react-cookie'
 import {useHistory} from 'react-router-dom'
 import InfiniteScroll from 'react-infinite-scroll-component'
 
 import styles from './styles.module.scss'
 
 //Services
-import api from '../../../../Services/api'
-import {logout} from '../../../../Services/authorization'
+import {logout} from '../../../../Services/Authorization'
 
 //Contexts
 import AlertContext from '../../../../Contexts/AlertContext'
@@ -15,11 +13,13 @@ import AlertContext from '../../../../Contexts/AlertContext'
 //Interfaces
 import { VideoType, VideoPageProps } from '../../../../@types'
 
+//Services 
+import getVideos from '../../../../Services/GetVideos'
+
 export function VideosList(){
 
     const history = useHistory()
 
-    const [cookies] = useCookies(['authorization'])
     const {showAlert} = useContext(AlertContext)
 
     const [sortBy, setSortBy] = useState<'latest' | 'oldest' | 'most_liked'>('latest')
@@ -27,57 +27,48 @@ export function VideosList(){
     const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true)
     const [isLoadingVideos, setIsLoadingVideos] = useState<boolean>(true)
 
-    const getVideos = async (start:number) => {
+    const getMoreVideos = async (start:number) => {
 
         setIsLoadingVideos(true)
 
-        const token = cookies.token
+        const response = await getVideos({
+            sortBy,
+            start
+        }) as any
 
-        const headers = {
-            authorization: `Bearer ${token}`
-        }
+        if(response.error){
 
-        const response = await api.get(`/videos?start=${start}&order_by=${sortBy}`, {headers}).catch((error) => {
-
-            if(error.response){
-
-                const error_message = error.response.data.message
-
-                if(error_message === 'Could not find any video'){
-                    setHasMoreVideos(false)
-                    
-                }else if(error_message === 'Invalid authorization token'){
-                    logout()
-                    history.push('/')
-                }
-
+            if(response.error_message === 'Could not find any video'){
+                setHasMoreVideos(false)
+                
+            }else if(response.error_message === 'Invalid authorization token'){
+                logout()
+                history.push('/')
             }else {
                 showAlert({
-                    message: 'Something went wrong in get videos process',
+                    message: response.error_message,
                     title: 'error'
                 })
             }
 
-            return 
-        }) as any
+            setIsLoadingVideos(false)
+            return
+
+        }
 
         if(!response){
             setIsLoadingVideos(false)
             return
         }
-        if(start){
-            setVideos([...videos, ...response.data])
-        }else{
-            setVideos(response.data)
-        }
 
-        setHasMoreVideos(true)
         setIsLoadingVideos(false)
 
-    }
-    
-    const getMoreVideos = () => {
-        getVideos(videos.length)
+        if(start){
+            setVideos([...videos, ...response])
+        }else {
+            setVideos(response)
+        }
+
     }
 
     const goToVideosPage = (video:VideoType) => {
@@ -95,7 +86,7 @@ export function VideosList(){
     useEffect(() => {
         setHasMoreVideos(true)
         setVideos([])
-        getVideos(0)
+        getMoreVideos(0)
         
         // eslint-disable-next-line
     }, [sortBy])
@@ -121,7 +112,7 @@ export function VideosList(){
             <InfiniteScroll
                 className={styles.videos}
                 dataLength={videos.length}
-                next={getMoreVideos}
+                next={() => {getMoreVideos(videos.length)}}
                 hasMore={hasMoreVideos}
                 loader={
                     <></>

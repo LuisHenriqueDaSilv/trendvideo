@@ -7,8 +7,9 @@ class Like(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('accounts.id'))
-    video_id = db.Column(db.Integer)
-
+    video_id = db.Column(db.Integer, db.ForeignKey('videos.id'))
+    
+    
     def __init__(self, user_id, video_id):
         self.user_id = user_id
         self.video_id = video_id

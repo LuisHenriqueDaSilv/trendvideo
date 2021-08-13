@@ -1,12 +1,15 @@
 import {Cookies} from 'react-cookie'
 
-//Types
-import {VideoType} from '../@types'
-
 //Services
 import api from './Api'
 
-export default async function likeVideo(video:VideoType){
+//Interfaces
+interface getVideosProps {
+    sortBy: 'latest' | 'oldest' | 'most_liked',
+    start: number
+}
+
+export default async function GetVideos({sortBy, start}:getVideosProps){
 
     const cookies = new Cookies()
     const token = cookies.get('token')
@@ -15,15 +18,9 @@ export default async function likeVideo(video:VideoType){
         authorization: `Bearer ${token}`
     }
 
-    const data = new FormData()
-    data.append('videoId', video.video_data.id.toString())
-
-    const response = await api.post(
-        '/video/like', 
-        data,
-        {
-            headers
-        }
+    const response = await api.get(
+        `/videos?order_by=${sortBy}&start=${start}`,
+        {headers}
     ).catch((error) => {
         if(error.response){
             const error_message = error.response.data.message
@@ -32,11 +29,10 @@ export default async function likeVideo(video:VideoType){
                 error: true,
                 error_message
             })
-
         }else{
             return({
                 error:true,
-                error_message: 'Something went wrong in like video process'
+                error_message: 'Something went wrong in get videos process'
             })
         }
 
@@ -44,15 +40,15 @@ export default async function likeVideo(video:VideoType){
 
     if(!response){
         return({
-            error: true,
-            error_message: 'Something went wrong in like video process'
+            error:true,
+            error_message: 'Something went wrong in get videos process'
         })
     }
 
     if(response.error){
         return(response)
+    }else{
+        return(response.data)
     }
-    
-    return(response.data)
 
 }

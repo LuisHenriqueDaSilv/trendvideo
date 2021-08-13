@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import { useHistory } from 'react-router-dom'
 
 //services
-import {logout} from '../../../../Services/authorization'
+import {logout} from '../../../../Services/Authorization'
 
 import styles from './styles.module.scss'
 

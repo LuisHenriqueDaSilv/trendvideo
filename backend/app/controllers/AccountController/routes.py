@@ -1,13 +1,13 @@
-from flask import Blueprint, render_template, send_file
+from flask import Blueprint, render_template, send_file, send_from_directory
 
-#controller
+# controller
 from .controller import AccountController
 
-#Middlewares
+# Middlewares
 from ...middlewares.verify_token import verify_token
 
 accounts_router = Blueprint(
-    'account_crud', 
+    'account_crud',
     __name__
 )
 
@@ -36,16 +36,18 @@ def cancel_create():
 def read():
     return AccountController.login()
 
+# Static files
 
-#Static files
+
 @accounts_router.route('/account/image/<path:filename>', methods=['GET'])
 def read_userimage(filename):
 
     try:
-        return send_file(f'database/files/user_image/{filename}')
+        return send_from_directory('database/files/user_image/', filename)
     except:
-        
-        return send_file(f'database/files/user_image/default.jpg')
+
+        return send_from_directory('database/files/user_image/', 'default.jpg')
+
 
 @accounts_router.route('/account/follow', methods=['POST'])
 @verify_token
