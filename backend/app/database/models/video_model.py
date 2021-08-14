@@ -16,6 +16,7 @@ class Video(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('accounts.id'))
     
     likes = db.relationship('Like', backref='video')
+    comments = db.relationship('Comment', backref='video')
 
     def __init__(self, name, owner_id, description, thumbnail):
         self.name = name

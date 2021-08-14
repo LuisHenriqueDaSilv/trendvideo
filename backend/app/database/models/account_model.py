@@ -18,6 +18,7 @@ class Account(db.Model):
     videos = db.relationship('Video', backref='owner')
     likes = db.relationship('Like', backref='user')
     follows = db.relationship('Follow', backref='follower')
+    comments = db.relationship('Comment', backref='owner')
 
 
     def __init__(self, username, email, password, confirmation_uuid, image_name):

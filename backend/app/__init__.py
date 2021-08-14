@@ -38,9 +38,12 @@ migrate = Migrate(app, db, directory='./app/database/models/migrations')
 #Blueprints
 from .controllers.VideoController.routes import videos_router
 from .controllers.AccountController.routes import accounts_router
+from .controllers.CommentsController.routes import comments_router
+
 app.register_blueprint(videos_router)
 app.register_blueprint(accounts_router)
+app.register_blueprint(comments_router)
 
 
 #Database models
-from .database.models import account_model, video_model, like_model, follow_model #Used in database migration
+from .database.models import account_model, video_model, like_model, follow_model, comment_model #Used in database migration

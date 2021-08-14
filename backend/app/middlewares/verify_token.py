@@ -40,6 +40,8 @@ def verify_token(function):
             user_id = decoded['id']
             
             user_account = Account.query.filter_by(id=user_id).first()
+            
+            print(user_account.comments)
 
             if not user_account:
                 raise

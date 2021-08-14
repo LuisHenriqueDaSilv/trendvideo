@@ -23,7 +23,7 @@ class VideoController():
             if user.status != 'OK':
                 return {
                     'status': 'error',
-                    'message': f'Unable to post video with {user.status} account status'
+                    'message': f'To post one video you need confirm your email first'
                 }, 400
 
             description = request.form.get('description')
@@ -300,7 +300,7 @@ class VideoController():
             if user.status != 'OK':
                 return {
                     'status': 'error',
-                    'message': f'Unable like video with {user.status} account status'
+                    'message': f'To like one video you need to confirm your email first.'
                 }, 400
 
             video_id = request.form.get('videoId')
