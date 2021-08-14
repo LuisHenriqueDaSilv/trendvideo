@@ -3,7 +3,6 @@
 
 #Backend
 backend/env/
-__pycache__/
 backend/app/database/database.sqlite
 backend/app/database/files/user_image/*
 !backend/app/database/files/user_image/default.jpg
@@ -12,6 +11,7 @@ backend/app/database/files/videos/*
 backend/app/database/files/thumbnails/*
 backend/app/database/models/migrations/*
 backend/app/logs/*
+__pycache__/
 
 
 #FrontEnd
