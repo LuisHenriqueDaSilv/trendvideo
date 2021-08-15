@@ -3,10 +3,16 @@ import {
     useState
 } from 'react'
 
-import {contextProviderProps, LoadingContextData} from '../@types'
-
 //Components
 import {Loading} from '../Components/Loading'
+
+//Interfaces
+import {contextProviderProps} from '../@types'
+interface LoadingContextData {
+    enableLoading: () => void,
+    disableLoading: () => void
+}
+
 
 const LoadingContext = createContext({} as LoadingContextData)
 export default LoadingContext

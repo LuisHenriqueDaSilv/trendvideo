@@ -23,16 +23,16 @@ export default async function GetVideos({sortBy, start}:getVideosProps){
         {headers}
     ).catch((error) => {
         if(error.response){
-            const error_message = error.response.data.message
+            const errorMessage = error.response.data.message
 
             return({
                 error: true,
-                error_message
+                errorMessage
             })
         }else{
             return({
                 error:true,
-                error_message: 'Something went wrong in get videos process'
+                errorMessage: 'Something went wrong in get videos process'
             })
         }
 
@@ -41,7 +41,7 @@ export default async function GetVideos({sortBy, start}:getVideosProps){
     if(!response){
         return({
             error:true,
-            error_message: 'Something went wrong in get videos process'
+            errorMessage: 'Something went wrong in get videos process'
         })
     }
 

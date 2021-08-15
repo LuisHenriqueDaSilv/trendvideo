@@ -26,17 +26,17 @@ export default async function likeVideo(video:VideoType){
         }
     ).catch((error) => {
         if(error.response){
-            const error_message = error.response.data.message
+            const errorMessage = error.response.data.message
 
             return({
                 error: true,
-                error_message
+                errorMessage
             })
 
         }else{
             return({
                 error:true,
-                error_message: 'Something went wrong in like video process'
+                errorMessage: 'Something went wrong in like video process'
             })
         }
 
@@ -45,7 +45,7 @@ export default async function likeVideo(video:VideoType){
     if(!response){
         return({
             error: true,
-            error_message: 'Something went wrong in like video process'
+            errorMessage: 'Something went wrong in like video process'
         })
     }
 

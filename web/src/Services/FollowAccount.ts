@@ -19,16 +19,16 @@ export default async function FollowAccount(accountId:number){
         {headers}
     ).catch((error) => {
         if(error.response){
-            const error_message = error.response.data.message
+            const errorMessage = error.response.data.message
 
             return({
                 error: true,
-                error_message
+                errorMessage
             })
         }else{
             return({
                 error:true,
-                error_message: 'Something went wrong in follow account process'
+                errorMessage: 'Something went wrong in follow account process'
             })
         }
 

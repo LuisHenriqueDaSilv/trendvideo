@@ -194,8 +194,6 @@ class VideoController():
                     'message': 'Start param not is a number'
                 }, 400
 
-            videos_list = []
-
             if order_by == 'oldest':
 
                 videos = Video.query.order_by(
@@ -234,6 +232,8 @@ class VideoController():
             liked_videos_ids = [
                 like.video_id for like in user.likes
             ]
+
+            videos_list = []
 
             for video in videos:
 

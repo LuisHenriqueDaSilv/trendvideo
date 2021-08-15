@@ -1,7 +1,13 @@
 //Styles
 import styles from './styles.module.scss'
 
-import {AlertProps} from '../../@types'
+//Types
+interface AlertProps{
+    title: 'error'|string,
+    percentageToEnd: number,
+    message: string,
+    closeAlert: () => void
+}
 
 export function Alert({
     title, 

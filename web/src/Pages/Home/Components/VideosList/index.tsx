@@ -38,15 +38,15 @@ export function VideosList(){
 
         if(response.error){
 
-            if(response.error_message === 'Could not find any video'){
+            if(response.errorMessage === 'Could not find any video'){
                 setHasMoreVideos(false)
                 
-            }else if(response.error_message === 'Invalid authorization token'){
+            }else if(response.errorMessage === 'Invalid authorization token'){
                 logout()
                 history.push('/')
             }else {
                 showAlert({
-                    message: response.error_message,
+                    message: response.errorMessage,
                     title: 'error'
                 })
             }

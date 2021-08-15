@@ -17,7 +17,7 @@ def create(user):
     return CommentsController.create(user)
 
 
-@comments_router.route('/comments/video', methods=['POST'])
+@comments_router.route('/comments/video', methods=['GET'])
 @verify_token
-def index():
-    return CommentsController.index()
+def index(user):
+    return CommentsController.index(user)

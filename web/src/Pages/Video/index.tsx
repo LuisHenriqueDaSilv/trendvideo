@@ -9,6 +9,7 @@ import {VideoPageProps, VideoType} from '../../@types'
 
 //Components
 import {EndListMessage} from './Components/EndListMessage'
+import {CommentsArea} from './Components/CommentsArea'
 
 //Services
 import {logout} from '../../Services/Authorization'
@@ -48,7 +49,7 @@ export function VideoPage(){
     
     useEffect(() => {
 
-        if(!location.state){
+        if(!location.state || !location.state.videos){
             history.push('/')
         }
 
@@ -104,19 +105,19 @@ export function VideoPage(){
 
         if(response.error){
 
-            if(response.error_message === 'video not found'){
+            if(response.errorMessage === 'video not found'){
                 showAlert({
                     message: 'Probably this video was deleted',
                     title: 'error'
                 })
 
-            }else if(response.error_message === 'Invalid authorization token'){
+            }else if(response.errorMessage === 'Invalid authorization token'){
                 logout()
                 history.push('/')
 
             }else {
                 showAlert({
-                    message: response.error_message,
+                    message: response.errorMessage,
                     title: 'error'
                 })
             }
@@ -164,13 +165,13 @@ export function VideoPage(){
         const response = await followAccount(accountId)
 
         if(response.error){
-            if(response.error_message === 'Invalid authorization token'){
+            if(response.errorMessage === 'Invalid authorization token'){
                 logout()
                 history.push('/')
             
             }else {
                 showAlert({
-                    message: response.error_message,
+                    message: response.errorMessage,
                     title: 'error'
                 })
 
@@ -207,11 +208,11 @@ export function VideoPage(){
         }) as any
 
         if(response.error){
-                if(response.error_message === 'Could not find any video'){
+                if(response.errorMessage === 'Could not find any video'){
                     setHasMoreVideos(false)
                     
                 }else if(
-                    response.error_message === 'Invalid authorization token'
+                    response.errorMessage === 'Invalid authorization token'
                 ){
                     logout()
                     history.push('/')
@@ -235,12 +236,6 @@ export function VideoPage(){
         setIsLoadingMoreVideos(false)
         setVideos([...videos, ...response])
 
-    }
-
-
-    const autoResizeTextarea = (event:any) => {
-        event.target.style.height = 'inherit'
-        event.target.style.height = `${event.target.scrollHeight}px`
     }
 
     return (
@@ -386,58 +381,10 @@ export function VideoPage(){
                                         </video>
                                     </div>
 
-                                    <div className={styles.comentsArea}>
-                                        <div className={styles.videoDescriptionContainer}>
-                                            <img 
-                                                alt="Luis Silva"
-                                                src={video.owner.image_url}
-                                            />
-                                            <div className={styles.videoDescriptionAndInfosContainer}>
-                                                <h1>{video.owner.username}</h1>
-                                                <p>
-                                                    {video.video_data.description}
-                                                </p>
+                                    <CommentsArea
+                                        video={video}
+                                    />
 
-                                                <div className={styles.videoInfosContainer}>
-                                                    <div>
-                                                        <label>12k</label>
-                                                        <img
-                                                            alt="Comments"
-                                                            src="/icons/Comments.png"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label>{video.video_data.likes}</label>
-                                                        <img
-                                                            alt="Likes"
-                                                            src="/icons/Like.png"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className={styles.commentsContainer}>
-                                            <div className={styles.comment}>
-                                                <img 
-                                                    alt="Ultimo"
-                                                    src="https://i.pinimg.com/236x/c5/16/bb/c516bb6c5d3e2b608977bc5b721b7e75.jpg"
-                                                />
-                                                <div>
-                                                    <h1>Ultimo</h1>
-                                                    <p>
-                                                        bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb  
-                                                    </p>
-                                                </div>
-                                            </div> 
-                                        </div>
-                                        
-                                        <form className={styles.createCommentContainer}>
-                                            <textarea onChange={autoResizeTextarea} rows={1}/>
-                                            <button type="submit">
-                                                Comment
-                                            </button>
-                                        </form>
-                                    </div>
                                     </Bounce>
 
                                 </div>

@@ -11,10 +11,18 @@ import {Alert} from '../Components/Alert'
 //Interfaces
 import {
     contextProviderProps,
-    showAlertParams,
-    AlertContextData
 } from '../@types'
 
+
+interface showAlertParams {
+    title: 'error'|string,
+    message: string
+}
+
+interface AlertContextData {
+    showAlert: (params: showAlertParams) => void,
+    closeAlert: () => void
+}
 
 const AlertContext = createContext({} as AlertContextData)
 

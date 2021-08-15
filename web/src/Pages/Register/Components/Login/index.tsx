@@ -25,7 +25,7 @@ export function Login(){
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
 
-    const handleLoginSubmit = async (event:FormEvent) => {
+    const handleSubmitLogin = async (event:FormEvent) => {
         event.preventDefault()
 
         enableLoading()
@@ -96,7 +96,7 @@ export function Login(){
     return (
         <div className={styles.loginContainer}>
             <h1>Login</h1>
-            <form onSubmit={handleLoginSubmit}>
+            <form onSubmit={handleSubmitLogin}>
                 <section>
                     <label>
                         Email
