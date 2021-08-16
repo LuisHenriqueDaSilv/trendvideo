@@ -183,6 +183,75 @@ export function CommentsArea({video}:CommentsAreaProps){
 
     }
 
+    const handleDeleteComment = async (comment:CommentInterface) => {
+
+        console.log('delete')
+
+        const token = cookies.token
+        const headers = {
+            authorization: `Bearer ${token}`
+        }
+
+        const data = new FormData()
+        data.append('comment_id', comment.id.toString())
+
+        const response = await api.delete(
+            '/comments/delete', {
+                headers,
+                data
+            }
+        ).catch((error) => {
+
+            if(error.response){
+
+                const errorMessage = error.response.data.message
+
+                if(errorMessage === 'Invalid authorization token'){
+                    logout()
+                    history.push('/')
+                }else {
+                    showAlert({
+                        title: 'error',
+                        message: errorMessage
+                    })
+                }
+
+            }else {
+                showAlert({
+                    title: 'error',
+                    message: 'Something went wrong in delete comment process'
+                })
+            }
+
+            return 
+        })
+
+        if(!response){
+            return
+        }
+
+        const newCommentsData = [...comments]
+        const commentsIds = newCommentsData.map((comment) => {
+            return comment.id
+        })
+
+        const deletedCommentIndex = commentsIds.indexOf(
+            response.data.deleted_comment.id
+        )
+        newCommentsData.splice(deletedCommentIndex, 1)
+
+        setComments(newCommentsData)
+
+        showAlert({
+            title: 'Delete comment',
+            message: 'Comment deleted with sucess'
+        })
+
+        return
+        
+    }
+
+
     const handleChangeTextArea = (event:any) => {
 
         setCommentTextValue(event.target.value)
@@ -246,7 +315,9 @@ export function CommentsArea({video}:CommentsAreaProps){
                                         </p>
                                         {
                                             comment.comment_is_your&& (
-                                                <button>
+                                                <button
+                                                    onClick={() => {handleDeleteComment(comment)}}
+                                                >
                                                     Delete comment
                                                 </button>
                                             )
@@ -268,6 +339,7 @@ export function CommentsArea({video}:CommentsAreaProps){
                     onChange={handleChangeTextArea} 
                     rows={1}
                     value={commentTextValue}
+                    maxLength={500}
                 />
                 <button 
                     type="submit"

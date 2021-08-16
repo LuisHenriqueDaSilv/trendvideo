@@ -81,12 +81,13 @@
             opacity: 0.3;
         }
 
-        padding-bottom: 10rem;
+        padding-bottom: 11rem;
         .comment {
 
             display: flex;
             border-bottom: var(--dark-pink) 2px solid;
             padding: 1.5rem;
+            height: 100%;
             gap: 10px;
 
             img {

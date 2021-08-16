@@ -29,20 +29,26 @@ class CommentsController():
                 return {
                     'status': 'error',
                     'message': 'Invalid video id'
-                } 
+                }, 400
                 
                 
             if not content:
                 return {
                     'status': 'error',
                     'message': 'Comment content is not provided'
-                }
+                }, 400
+                
+            if len(content) > 500:
+                return {
+                    'status': 'error',
+                    'message': 'Invalid comment content length'
+                }, 400
                 
             if user.status != 'OK':
                 return {
                     'status': 'error',
                     'message': f'To make a comment you need to confirm your email first'
-                }
+                }, 401
                 
             video = Video.query.filter_by(id=video_id).first()
             
@@ -50,7 +56,7 @@ class CommentsController():
                 return {
                     'status': 'error',
                     'message': 'Video not found'
-                }
+                }, 404
                 
 
             comment = Comment(
@@ -85,7 +91,8 @@ class CommentsController():
                 'status': 'error',
                 'message': 'something unexpected happened'
             }, 500
-            
+           
+    @staticmethod 
     def index(user):
         
         try:
@@ -160,3 +167,70 @@ class CommentsController():
                 'message': 'something unexpected happened'
             }, 500
         
+    @staticmethod
+    def delete(user):
+        
+        try:
+            
+            comment_id = request.form.get('comment_id')
+            
+            if not comment_id:
+                return {
+                    'status': 'error',
+                    'message': 'Comment id is not provided'
+                }, 400
+                
+            try: 
+                comment_id = int(comment_id)
+            except:
+                return {
+                    'status': 'error',
+                    'message': 'Comment id is invalid'
+                }, 400
+            
+            comment = Comment.query.filter_by(
+                id=comment_id
+            ).first()
+            
+            if not comment:
+                return {
+                    'status': 'error',
+                    'message': 'Comment not found'
+                }, 404
+                
+            if comment.owner_id != user.id:
+                return {
+                    'status': 'error',
+                    'message': 'This comment is not yours'
+                }, 401
+                
+            comment_data = {
+                'content': comment.content,
+                'id': comment.id,
+                'comment_is_your': comment.owner.id == user.id,
+                'owner': {
+                    'username': comment.owner.username,
+                    'id': comment.owner.id,
+                    'image_url': f'{request.url_root}/account/image/{comment.owner.image_name}'
+                }
+            }
+            
+            db.session.delete(comment)
+            db.session.commit()
+            
+            return {
+                'status': 'ok',
+                'deleted_comment': comment_data
+            }
+            
+            
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'something unexpected happened'
+            }, 500
+
+    

@@ -10,7 +10,7 @@ import json
 from app import app, db
 
 # Models
-from ...database.models import Video, Like
+from ...database.models import Video, Like, Comment
 
 
 class VideoController():
@@ -155,6 +155,11 @@ class VideoController():
                 }, 400
 
             if video.owner_id == user.id:
+                
+                Comment.query.filter_by(
+                    video_id=video_id
+                ).delete()
+                
                 db.session.delete(video)
                 db.session.commit()
 

@@ -21,3 +21,8 @@ def create(user):
 @verify_token
 def index(user):
     return CommentsController.index(user)
+
+@comments_router.route('/comments/delete', methods=['DELETE'])
+@verify_token
+def delete(user):
+    return CommentsController.delete(user)
