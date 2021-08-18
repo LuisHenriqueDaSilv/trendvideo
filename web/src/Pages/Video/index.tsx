@@ -1,5 +1,5 @@
 import {useEffect, useState, useRef, useContext } from 'react'
-import {useHistory, useLocation} from 'react-router-dom'
+import {useHistory, useLocation, Link} from 'react-router-dom'
 import Bounce from 'react-reveal/Bounce'
 
 
@@ -14,7 +14,7 @@ import {CommentsArea} from './Components/CommentsArea'
 //Services
 import {logout} from '../../Services/Authorization'
 import likeVideo from '../../Services/LikeVideo'
-import getVideos from '../../Services/GetVideos'
+import {getVideos} from '../../Services/GetVideos'
 import followAccount from '../../Services/FollowAccount'
 
 //Contexts
@@ -303,7 +303,7 @@ export function VideoPage(){
                                     >
 
                                         <header>
-                                            <div>
+                                            <Link to={`/user/${video.owner.username}`}>
 
                                                 <img
                                                     alt={video.owner.username}
@@ -321,7 +321,7 @@ export function VideoPage(){
                                                         Posted on {video.video_data.created_at.split(' ')[0]}
                                                     </h2>
                                                 </div>
-                                            </div>
+                                            </Link>
                                             <button
                                                 id={
                                                     video.owner.followed? styles.followedButton:''
@@ -330,8 +330,7 @@ export function VideoPage(){
                                                     () => {handleFollowAccount(video.owner.id)}
                                                 }
                                             >
-                                                {video.owner.followed? 'Followed':'Follow'
-                                                }
+                                                {video.owner.followed? 'Followed':'Follow'}
                                             </button>
                                         </header>
 

@@ -7,6 +7,7 @@ import {isAuthenticated} from './Services/Authorization'
 import {Register} from './Pages/Register'
 import {Home} from './Pages/Home'
 import {VideoPage} from './Pages/Video'
+import {AccountInfos} from './Pages/AccountInfos'
 
 
 const AuthenticatedRoute = ({Component, ...rest}:any) => {
@@ -48,6 +49,7 @@ export function Routes(){
             <Switch>
                 <AuthenticatedRoute path="/home" Component={Home}/>
                 <AuthenticatedRoute path="/videos" Component={VideoPage}/>
+                <AuthenticatedRoute path="/user/:username" Component={AccountInfos}/>
                 <UnauthenticatedRoute path="/" Component={Register} />
             </Switch>
         </BrowserRouter>

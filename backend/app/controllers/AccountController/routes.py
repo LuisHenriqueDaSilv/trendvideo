@@ -36,6 +36,18 @@ def cancel_create():
 def read():
     return AccountController.login()
 
+
+@accounts_router.route('/account/follow', methods=['POST'])
+@verify_token
+def follow_account(user):
+    return AccountController.follow(user)
+
+
+@accounts_router.route('/account/<path:username>')
+@verify_token
+def get_account_infos(user, username):
+    return AccountController.get_infos(user, username)
+
 # Static files
 
 
@@ -47,9 +59,4 @@ def read_userimage(filename):
     except:
 
         return send_from_directory('database/files/user_image/', 'default.jpg')
-
-
-@accounts_router.route('/account/follow', methods=['POST'])
-@verify_token
-def follow_account(user):
-    return AccountController.follow(user)
+    

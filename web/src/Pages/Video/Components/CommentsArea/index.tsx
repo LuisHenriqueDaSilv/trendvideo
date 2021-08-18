@@ -1,6 +1,6 @@
 import {useEffect, useState, useContext, FormEvent} from 'react'
 import {useCookies} from 'react-cookie'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 
 //Styles
 import styles from './styles.module.scss'
@@ -41,9 +41,12 @@ export function CommentsArea({video}:CommentsAreaProps){
 
     const [commentTextValue, setCommentTextValue] = useState<string>('')
     const [isSendingComment, setIsSendingComment] = useState<boolean>(false)
+    const [haveComments, setHaveComments] = useState<boolean>(true)
 
     useEffect(() => {
         getComments(0)
+
+        // eslint-disable-next-line 
     }, [video])
     
     const getComments = async(start:number) => {
@@ -69,6 +72,8 @@ export function CommentsArea({video}:CommentsAreaProps){
                     logout()
                     history.push('/')
 
+                }else if(errorMessage === 'Could not find any comment') {
+                    setHaveComments(false)
                 }else {
                     showAlert({
                         message: errorMessage,
@@ -185,8 +190,6 @@ export function CommentsArea({video}:CommentsAreaProps){
 
     const handleDeleteComment = async (comment:CommentInterface) => {
 
-        console.log('delete')
-
         const token = cookies.token
         const headers = {
             authorization: `Bearer ${token}`
@@ -300,16 +303,24 @@ export function CommentsArea({video}:CommentsAreaProps){
                 {
                     comments?.map((comment) => {
                         return (
-                                <div 
+                                <div
                                     className={styles.comment}
                                     key={comment.id}
                                 >
-                                    <img 
-                                        alt={comment.owner.username}
-                                        src={comment.owner.image_url}
-                                    />
+                                    <Link
+                                        to={`/user/${comment.owner.username}`}
+                                    >
+                                        <img 
+                                            alt={comment.owner.username}
+                                            src={comment.owner.image_url}
+                                        />
+                                    </Link>
                                     <div>
-                                        <h1>{comment.owner.username}</h1>
+                                        <Link
+                                            to={`/user/${comment.owner.username}`}
+                                        >
+                                            <h1>{comment.owner.username}</h1>
+                                        </Link>
                                         <p>
                                             {comment.content}  
                                         </p>
@@ -328,10 +339,17 @@ export function CommentsArea({video}:CommentsAreaProps){
                     })
                 }
                 <button
-                    disabled={isLoadingComments}
+                    disabled={isLoadingComments||!haveComments}
                     onClick={()=> {getComments(comments.length)}}
+                    id={haveComments? '':styles.notCommentsButton}
                 >
-                    {isLoadingComments? 'Loading comments':'Get more comments'}
+                    {
+                        haveComments? (
+                            isLoadingComments? 'Loading comments':'Get more comments'
+                        ):(
+                            'This video not have more comments'
+                        )
+                    }
                 </button>
             </div>
             <form onSubmit={handleSubmitComment} className={styles.createCommentContainer}>

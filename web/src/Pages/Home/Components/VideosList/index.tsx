@@ -14,7 +14,7 @@ import AlertContext from '../../../../Contexts/AlertContext'
 import { VideoType, VideoPageProps } from '../../../../@types'
 
 //Services 
-import getVideos from '../../../../Services/GetVideos'
+import {getVideos} from '../../../../Services/GetVideos'
 
 export function VideosList(){
 

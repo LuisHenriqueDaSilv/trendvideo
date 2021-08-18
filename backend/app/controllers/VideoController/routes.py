@@ -54,3 +54,8 @@ def delete(user):
 @verify_token
 def like(user):
     return VideoController.like(user)
+
+@videos_router.route('/videos/<path:username>')
+@verify_token
+def get_videos_from_username(user, username):
+    return VideoController.get_from_username(user, username)

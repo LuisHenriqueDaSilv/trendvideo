@@ -10,7 +10,7 @@ import json
 from app import app, db
 
 # Models
-from ...database.models import Video, Like, Comment
+from ...database.models import Video, Like, Comment, Account
 
 
 class VideoController():
@@ -351,6 +351,114 @@ class VideoController():
                     'status': 'ok',
                     'message': 'like'
                 }
+
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'Something unexpected happened'
+            }, 500
+
+    @staticmethod
+    def get_from_username(user, username):
+        
+        try:
+        
+            args = dict(request.args)
+
+            start = args.get('start') or 0  # default 0
+            
+            try: 
+                start = int(start)
+            except:
+                return {
+                    'status': 'error',
+                    'message': 'Start param not is a number'
+                }, 400
+            
+            if not username:
+                return {
+                    'status': 'error',
+                    'message': 'Username is not provided'
+                }, 400
+                            
+            videos_owner = Account.query.filter_by(username=username).first()
+            
+            if not videos_owner:
+                return {
+                    'status': 'error',
+                    'message': 'User not found'
+                }, 404
+            
+            videos = Video.query.filter_by(
+                owner_id=videos_owner.id
+            ).order_by(
+                sqlalchemy.desc(Video.created_at)
+            ).limit(
+                25
+            ).offset(
+                start
+            ).all()
+            
+            followeds_users_ids = [
+                follow.followed_user_id for follow in user.follows
+            ]
+            liked_videos_ids = [
+                like.video_id for like in user.likes
+            ]
+            
+            videos_list = []
+            
+            for video in videos:
+
+                likes_str = str(len(video.likes))
+                likes_complement = ''
+
+                if len(likes_str) > 9:
+                    likes_complement = 'b'
+                    likes_str = likes_str[:-9]
+                elif len(likes_str) > 6:
+                    likes_complement = 'mi'
+                    likes_str = likes_str[:-6]
+                elif len(likes_str) > 3:
+                    likes_complement = 'k'
+                    likes_str = likes_str[:-3]
+
+                liked = video.id in liked_videos_ids
+
+                is_following_video_owner = video.owner.id in followeds_users_ids
+
+                videos_list.append({
+                    'url': f'{request.url_root}/video/{video.name}',
+                    'video_data': {
+                        'likes': f'{likes_str}{likes_complement}',
+                        'description': video.description,
+                        'created_at': video.created_at,
+                        'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
+                        'id': video.id,
+                        'name': video.name,
+                        'liked': liked
+                    },
+                    'owner': {
+                        'username': video.owner.username,
+                        'created_at': video.owner.created_at,
+                        'followers': video.owner.followers,
+                        'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
+                        'followed': is_following_video_owner,
+                        'id': video.owner.id
+                    }
+                })
+
+            if len(videos_list) < 1:
+                return {
+                    'status': 'error',
+                    'message': 'Could not find any video'
+                }, 404
+
+            return json.dumps(videos_list)
+            
 
         except Exception as error:
 

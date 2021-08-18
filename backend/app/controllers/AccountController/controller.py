@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from uuid import uuid4
@@ -6,6 +6,7 @@ from dotenv import dotenv_values
 from datetime import date, datetime, timedelta
 import bcrypt
 import jwt
+import sqlalchemy
 
 from app import db, app
 
@@ -16,7 +17,7 @@ from ...services.smtp_server import smtp_server
 from ...emails.confirmation_email import gen_confirmation_email_body
 
 # Database Models
-from ...database.models import Account, Follow
+from ...database.models import Account, Follow, Video
 
 # Getting dotenv variables
 dotenv_variables = dotenv_values('.env')
@@ -407,6 +408,108 @@ class AccountController():
                     'message': 'Follow'
                 }
 
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'something unexpected happened'
+            }, 500
+
+    def get_infos(user, username):
+        
+        try:
+            if not username:
+                return {
+                    'status': 'error',
+                    'message': 'Username not provided'
+                }, 400
+                
+            account = Account.query.filter_by(
+                username=username
+            ).first()
+            
+            if not account:
+                return {
+                    'status': 'error',
+                    'message': 'Account not found'
+                }, 404
+                
+            videos = Video.query.filter_by(
+                owner_id=account.id
+            ).order_by(
+                sqlalchemy.desc(Video.created_at)
+            ).limit(
+                30
+            ).offset(
+                0
+            ).all()
+
+            liked_videos_ids = [
+                like.video_id for like in user.likes
+            ]
+            followeds_users_ids = [
+                follow.followed_user_id for follow in user.follows
+            ]
+            followed = account.id in followeds_users_ids
+            
+            first_videos_list = []
+            
+            for video in videos:
+
+                likes_str = str(len(video.likes))
+                likes_complement = ''
+
+                if len(likes_str) > 9:
+                    likes_complement = 'b'
+                    likes_str = likes_str[:-9]
+                elif len(likes_str) > 6:
+                    likes_complement = 'mi'
+                    likes_str = likes_str[:-6]
+                elif len(likes_str) > 3:
+                    likes_complement = 'k'
+                    likes_str = likes_str[:-3]
+
+                liked = video.id in liked_videos_ids
+
+                first_videos_list.append({
+                    'url': f'{request.url_root}/video/{video.name}',
+                    'video_data': {
+                        'likes': f'{likes_str}{likes_complement}',
+                        'description': video.description,
+                        'created_at': video.created_at,
+                        'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
+                        'id': video.id,
+                        'name': video.name,
+                        'liked': liked
+                    },
+                    'owner': {
+                        'username': video.owner.username,
+                        'created_at': video.owner.created_at,
+                        'followers': video.owner.followers,
+                        'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
+                        'followed': followed,
+                        'id': video.owner.id
+                    }
+                })
+                
+
+            user_data = {
+                'followed': followed,
+                'username': account.username,
+                'followers': account.followers,
+                'videos': len(account.videos),
+                'image_url': f'{request.url_root}/account/image/{account.image_name}',
+                'id': account.id
+            }
+            
+            return {
+                'status': 'ok',
+                'userinfos': user_data,
+                'videos': first_videos_list or False
+            }
+                
         except Exception as error:
 
             app.logger.error(error)
