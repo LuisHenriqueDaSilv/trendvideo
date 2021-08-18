@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta
 import bcrypt
 import jwt
 import sqlalchemy
+import json
 
 from app import db, app
 
@@ -441,7 +442,7 @@ class AccountController():
             ).order_by(
                 sqlalchemy.desc(Video.created_at)
             ).limit(
-                30
+                25
             ).offset(
                 0
             ).all()
@@ -510,6 +511,28 @@ class AccountController():
                 'videos': first_videos_list or False
             }
                 
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'something unexpected happened'
+            }, 500
+            
+    def get_followed_accounts(user):
+        try: 
+            
+            followed_accounts = []
+                                                
+            for follow in user.follows:
+                followed_accounts.append({
+                    'username': follow.followed_user.username,
+                    'image_url': f'{request.url_root}/account/image/{follow.followed_user.image_name}'
+                })
+            
+            return json.dumps(followed_accounts)
+            
         except Exception as error:
 
             app.logger.error(error)

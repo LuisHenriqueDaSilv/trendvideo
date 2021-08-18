@@ -8,7 +8,6 @@ import styles from './styles.module.scss'
 
 export function AccountOptions(){
 
-
     const history = useHistory()
 
     const [isOpeningMenu, setIsOpeningMenu ] = useState<boolean>(false)
@@ -28,9 +27,13 @@ export function AccountOptions(){
         setIsOpeningMenu(!isOpeningMenu)
     }
 
+    const goToMyAccountPage = () => {
+        history.push(`/user/${username}`)
+    }
+
     const handleLogout = () => {
         logout()
-        history.push('/')
+        history.push(`/`)
     }
 
     return(
@@ -56,7 +59,7 @@ export function AccountOptions(){
                 className={styles.accountOptionsContainer}
                 id={isOpeningMenu? styles.showOptions:styles.hideOptions}
             >
-                <button onClick={() => {alert('teste')}}>
+                <button onClick={goToMyAccountPage}>
                     My account
                 </button>
                 <button onClick={handleLogout}>Logout</button>

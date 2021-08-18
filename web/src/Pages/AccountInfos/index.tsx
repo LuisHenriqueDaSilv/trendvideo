@@ -20,7 +20,7 @@ import AlertContext from '../../Contexts/AlertContext'
 import {Loading} from '../../Components/Loading'
 
 //Interfaces
-import {VideoType} from '../../@types'
+import {VideoType, VideoPageProps} from '../../@types'
 
 interface userdataInterface {
     followed: boolean,
@@ -52,6 +52,7 @@ export function AccountInfos(){
 
         getUserInfos()
 
+        // eslint-disable-next-line
     }, [username])
 
     const getUserInfos = async () => {
@@ -134,6 +135,17 @@ export function AccountInfos(){
 
         setVideos([...videos, ...response])
         setIsLoadingMoreVideos(false)
+    }
+
+    const goToVideosPage = (video:VideoType) => {
+
+        const state: VideoPageProps = {
+            videos,
+            currentVideo: video,
+        }
+
+
+        history.push(`/videos?user=${username}`, state)
     }
 
     const handleFollowAccount = async () => {
@@ -241,7 +253,10 @@ export function AccountInfos(){
                         videos? (
                             videos.map((video) => {
                                 return(
-                                    <div className={styles.video}
+                                    <button 
+                                        key={video.video_data.id}
+                                        className={styles.video}
+                                        onClick={() => {goToVideosPage(video)}}
                                         style={{
                                             backgroundImage: `url(${video.video_data.thumbnail_url})`
                                         }}
@@ -250,7 +265,7 @@ export function AccountInfos(){
                                             <label>{video.video_data.likes}</label>
                                             <img alt="Likes" src="/icons/Like.png"/>
                                         </div>
-                                    </div>
+                                    </button>
                                 )
                             })
                         ): null

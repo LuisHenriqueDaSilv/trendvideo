@@ -5,6 +5,7 @@ import styles from './styles.module.scss'
 //Components
 import {VideosList} from './Components/VideosList'
 import {AccountOptions} from './Components/AccountOptions'
+import {FollowedAccounts} from './Components/FollowedAccounts'
 
 export function Home(){
 
@@ -12,6 +13,8 @@ export function Home(){
 
     return (
         <div className={styles.container}>
+
+            <FollowedAccounts/>
 
             <header className={styles.pageHeader}>
 

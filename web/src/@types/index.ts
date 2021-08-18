@@ -27,6 +27,6 @@ export interface VideoType {
 
 export interface VideoPageProps {
     currentVideo: VideoType,
-    sortBy: 'latest' | 'oldest' | 'most_liked',
+    sortBy?: 'latest' | 'oldest' | 'most_liked',
     videos: VideoType[]
 }

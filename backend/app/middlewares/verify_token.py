@@ -44,7 +44,7 @@ def verify_token(function):
             if not user_account:
                 raise
 
-        except Exception:
+        except Exception as error:
             return {
                 'status': 'error',
                 'message': 'Invalid authorization token'

@@ -1,0 +1,73 @@
+.container {
+    display: flex;
+    align-items: center;
+    width: 22rem;
+    height: auto;
+    flex-direction: column;
+    padding: 2rem;
+    padding-top: 1rem;
+    background-color: var(--dark-grey);
+    position: absolute;
+    text-align: center;
+    top: 25vh;
+    left: 5rem;
+    border-radius: 5px;
+    gap: 3rem;
+
+    header {
+        display: flex;
+        color: #fff;
+        justify-content: center;
+        width: 100%;
+
+        h1 {
+            font-size: 1.7rem;
+        }
+    }
+
+    .accountsContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        padding-bottom: 7rem;
+        
+        .account {
+            padding: 0.7rem;
+            gap: 1rem;
+            display: flex;
+            flex-direction: row;
+            justify-content:space-between;
+            align-items: center;
+            width: 100%;
+
+            img {
+                height: 4rem;
+                width: 4rem;
+                border-radius: 50%;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                color: var(--pink);
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            border-bottom: solid 2px;
+        }
+
+        .account:hover {
+            opacity: 0.5;
+        }
+
+    }
+
+}
+
+@media (max-width: 1050px){
+    .container {
+        display: none;
+    }
+}

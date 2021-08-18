@@ -11,7 +11,7 @@
 
     a {
 
-        position: absolute;
+        position: fixed;
         top: 4rem;
         left: 4rem;
 
@@ -103,6 +103,8 @@
         }
 
         .videosContainer {
+            justify-content: center;
+            justify-items: center;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 2rem;
@@ -149,5 +151,102 @@
             color: #fff;
             margin-top: 5rem;
         }
+    }
+}
+
+@media (max-width: 1050px){
+    .container {
+
+        a {
+            display: flex;
+            justify-content: center;
+
+            position: absolute;
+            top: 0;
+            width: 100vw;
+            left: 0;
+            right: 0;
+            background-color: black;
+    
+            img {
+                width: 4rem;
+                height: 4rem;
+            }
+        }
+
+        .errorText {
+            font-size: 2rem;
+            margin-top: calc(100% - 2rem);
+        }
+
+        .infosArea {
+            width: 100vw;
+            padding: 1rem;
+            flex-direction: column;
+            padding-top: 7rem;
+            height: auto;
+
+            img {
+                height: 7rem;
+                width: 7rem;
+            }
+
+            .infosContainer {
+
+                gap: 2rem;
+
+                h1 {
+                    font-size: 1.5rem;
+                }
+
+                div {
+                    font-size: 1rem;
+                    width: 90vw;
+                }
+
+                button {
+                    width: 80vw;
+                    height: 3rem;
+                    font-size: 1.3rem;
+                }
+
+            }
+        }
+
+        .videosArea {
+            margin-top: 5rem;
+            width: 90vw;
+            
+            header {
+                font-size: 0.7rem;
+            }
+
+            .videosContainer {
+                width: 100%;
+                grid-template-columns:repeat(2, 1fr);
+                margin-top: 1rem;
+
+    
+                .video{
+    
+                    width: 11.2rem;
+                    height: 20rem;
+    
+                    .videoInfoContainer {
+    
+                        label {
+                            font-size: 1rem;
+                        }
+            
+                        img {
+                            height: 1rem;
+                        }
+        
+                    }
+                }
+            }
+
+        }
+
     }
 }

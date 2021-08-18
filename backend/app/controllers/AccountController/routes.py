@@ -48,7 +48,11 @@ def follow_account(user):
 def get_account_infos(user, username):
     return AccountController.get_infos(user, username)
 
-# Static files
+
+@accounts_router.route('/account/following', methods=['GET'])
+@verify_token
+def get_followeds_account(user):
+    return AccountController.get_followed_accounts(user)
 
 
 @accounts_router.route('/account/image/<path:filename>', methods=['GET'])
@@ -59,4 +63,3 @@ def read_userimage(filename):
     except:
 
         return send_from_directory('database/files/user_image/', 'default.jpg')
-    
