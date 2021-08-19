@@ -1,3 +1,4 @@
+from operator import or_
 from flask import request
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -532,6 +533,54 @@ class AccountController():
                 })
             
             return json.dumps(followed_accounts)
+            
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'something unexpected happened'
+            }, 500
+            
+    def search_accounts(user):
+        
+        try:
+            
+            args = dict(request.args)
+            
+            search_terms = args.get('q')
+            
+            if not search_terms:
+                return {
+                    'status': 'error',
+                    'message': 'Search terms not provided'
+                }, 400
+                
+            accounts_list = []
+            
+            accounts = Account.query.filter(
+                Account.username.contains(search_terms)
+            ).all()
+            
+            for account in accounts:
+                accounts_list.append({
+                    'username': account.username,
+                    'videos': len(account.videos),
+                    'followers': account.followers,
+                    'image_url': f'{request.url_root}/account/image/{account.image_name}'
+                })
+                
+            if not accounts_list:
+                return {
+                    'status': 'error',
+                    'message': 'Could not find any user with this terms'
+                }, 404
+            
+            return {
+                'status': 'ok',
+                'results': accounts_list
+            }
             
         except Exception as error:
 

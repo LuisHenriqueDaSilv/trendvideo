@@ -68,6 +68,14 @@
 
 @media (max-width: 1050px){
     .container {
-        display: none;
+        background: none;
+        
+        header {
+            display: none;
+        }
+        .accountsContainer {
+            display: none;
+        }
     }
+
 }

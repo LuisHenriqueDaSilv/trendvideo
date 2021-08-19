@@ -88,36 +88,7 @@ footer {
     align-items: center;
     padding: 2rem;
 
-    .searchBarContainer {
-
-        display: flex;
-
-        input {
-            height: 7rem;
-            width: 50rem;
-            border: 0;
-            border-radius: 5px 0 0 5px;
-            background-color: #DFDFDF;
-            font-size: 2.5rem;
-            font-weight: 500;
-            color: var(--dark-grey);
-            padding-left: 1rem;
-        }
-
-        button {
-            height: 7rem;
-            width: 10rem;
-            border: 0;
-            border-radius: 0 5px 5px 0;
-            background-color: #c4c4c4;
-        }
-
-        button:hover {
-            opacity: 0.7;
-        }
-    }
-
-    .searchButton {
+    .createVideoButton {
         height: 9rem;
         width: 9rem;
         border-radius: 100%;
@@ -137,7 +108,7 @@ footer {
         }
     }
 
-    .searchButton:hover {
+    .createVideoButton:hover {
         opacity: 0.7;
     }
 }
@@ -173,7 +144,8 @@ body {
 
     .videoListContainer {
         margin-top: 1rem;
-        width: 100vw;
+        width: 100%;
+
         header {
             height: 4rem;
             width: 100%;
@@ -189,31 +161,13 @@ body {
         bottom: 0;
         width: 100vw;
         display: flex;
-        padding-bottom: 0;
+        padding: 0;
         flex-direction: column;
         height: auto;
+        position: fixed;
+        bottom: 0;
 
-        .searchBarContainer {
-            input {
-                width: 80vw;
-                height: 3rem;
-                border-radius: 0;
-                font-size: 1rem;
-            }
-
-            button {
-                height: 3rem;
-                width: 20vw;
-                border-radius: 0;
-
-                img {
-                    height: 3rem;
-                    width: 3rem;
-                }
-            }
-        }
-
-        .searchButton {
+        .createVideoButton {
             display: flex;
             height: 3rem;
             width: 100vw;

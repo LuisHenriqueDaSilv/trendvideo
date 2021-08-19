@@ -29,6 +29,7 @@ export function FollowedAccounts(){
 
     useEffect(() => {
         getFollowedAccounts()
+        // eslint-disable-next-line
     }, [])
 
     const getFollowedAccounts = async () => {
@@ -92,6 +93,7 @@ export function FollowedAccounts(){
                             >
                                 <img
                                     src={account.image_url}
+                                    alt={account.username}
                                 />
                                 <h1>{account.username}</h1>
                             </Link>

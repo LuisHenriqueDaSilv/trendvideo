@@ -8,6 +8,8 @@ import {Register} from './Pages/Register'
 import {Home} from './Pages/Home'
 import {VideoPage} from './Pages/Video'
 import {AccountInfos} from './Pages/AccountInfos'
+import {SearchPage} from './Pages/SearchPage'
+import {PostVideoPage} from './Pages/PostVideoPage'
 
 
 const AuthenticatedRoute = ({Component, ...rest}:any) => {
@@ -50,6 +52,8 @@ export function Routes(){
                 <AuthenticatedRoute path="/home" Component={Home}/>
                 <AuthenticatedRoute path="/videos" Component={VideoPage}/>
                 <AuthenticatedRoute path="/user/:username" Component={AccountInfos}/>
+                <AuthenticatedRoute path="/search" Component={SearchPage}/>
+                <AuthenticatedRoute path="/video/post" Component={PostVideoPage}/>
                 <UnauthenticatedRoute path="/" Component={Register} />
             </Switch>
         </BrowserRouter>

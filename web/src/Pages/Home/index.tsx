@@ -6,6 +6,7 @@ import styles from './styles.module.scss'
 import {VideosList} from './Components/VideosList'
 import {AccountOptions} from './Components/AccountOptions'
 import {FollowedAccounts} from './Components/FollowedAccounts'
+import {SearchBar} from '../../Components/SearchBar'
 
 export function Home(){
 
@@ -59,13 +60,9 @@ export function Home(){
 
             <footer>
                 <div/>
-                <div className={styles.searchBarContainer}>
-                    <input type="text"/>
-                    <button>
-                        <img alt="search icon" src="/icons/Search.png"/>
-                    </button>
-                </div>
-                <button className={styles.searchButton}>
+
+                <SearchBar/>
+                <button className={styles.createVideoButton}>
                     +
                 </button>
             </footer>

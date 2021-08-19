@@ -54,6 +54,11 @@ def get_account_infos(user, username):
 def get_followeds_account(user):
     return AccountController.get_followed_accounts(user)
 
+@accounts_router.route('/accounts/search')
+@verify_token
+def search_accounts(user):
+    return AccountController.search_accounts(user)
+
 
 @accounts_router.route('/account/image/<path:filename>', methods=['GET'])
 def read_userimage(filename):

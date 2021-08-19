@@ -1,0 +1,54 @@
+.searchBarContainer {
+
+    display: flex;
+
+    input {
+        height: 7rem;
+        width: 50rem;
+        border: 0;
+        border-radius: 5px 0 0 5px;
+        background-color: #DFDFDF;
+        font-size: 2.5rem;
+        font-weight: 500;
+        color: var(--dark-grey);
+        padding-left: 1rem;
+    }
+
+    button {
+        height: 7rem;
+        width: 10rem;
+        border: 0;
+        border-radius: 0 5px 5px 0;
+        background-color: #c4c4c4;
+    }
+
+    button:hover {
+        opacity: 0.7;
+    }
+}
+
+@media (max-width: 1050px){
+
+    .searchBarContainer {
+
+        position: fixed;
+        bottom: 3.2rem;
+        input {
+            width: 70vw;
+            height: 3rem;
+            border-radius: 0;
+            font-size: 1rem;
+        }
+
+        button {
+            height: 3rem;
+            width: 20vw;
+            border-radius: 0;
+
+            img {
+                height: 3rem;
+                width: 3rem;
+            }
+        }
+    }
+}
