@@ -21,6 +21,10 @@ def create():
 def confirm_create_page():
     return render_template('confirm_email.html')
 
+@accounts_router.route('/account/change-password', methods=['GET'])
+def change_password_page():
+    return render_template('change_password.html')
+
 
 @accounts_router.route('/account/create/confirm', methods=['POST'])
 def confirm_create():
@@ -30,6 +34,11 @@ def confirm_create():
 @accounts_router.route('/account/create/cancel', methods=['POST'])
 def cancel_create():
     return AccountController.cancel_create()
+
+
+@accounts_router.route('/account/update/password', methods=['POST'])
+def update_password():
+    return AccountController.change_password()
 
 
 @accounts_router.route('/account/login', methods=['POST'])
@@ -43,7 +52,7 @@ def follow_account(user):
     return AccountController.follow(user)
 
 
-@accounts_router.route('/account/<path:username>')
+@accounts_router.route('/account/infos/<path:username>')
 @verify_token
 def get_account_infos(user, username):
     return AccountController.get_infos(user, username)

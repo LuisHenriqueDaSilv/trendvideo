@@ -10,6 +10,7 @@ import {VideoPage} from './Pages/Video'
 import {AccountInfos} from './Pages/AccountInfos'
 import {SearchPage} from './Pages/SearchPage'
 import {PostVideoPage} from './Pages/PostVideoPage'
+import {AccountOptions} from './Pages/AccountOptions'
 
 
 const AuthenticatedRoute = ({Component, ...rest}:any) => {
@@ -54,6 +55,7 @@ export function Routes(){
                 <AuthenticatedRoute path="/user/:username" Component={AccountInfos}/>
                 <AuthenticatedRoute path="/search" Component={SearchPage}/>
                 <AuthenticatedRoute path="/video/post" Component={PostVideoPage}/>
+                <AuthenticatedRoute path="/myaccount" Component={AccountOptions}/>
                 <UnauthenticatedRoute path="/" Component={Register} />
             </Switch>
         </BrowserRouter>

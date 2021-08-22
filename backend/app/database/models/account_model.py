@@ -18,6 +18,7 @@ class Account(db.Model):
     videos = db.relationship('Video', backref='owner')
     likes = db.relationship('Like', backref='user')
     comments = db.relationship('Comment', backref='owner')
+    change_password_requests = db.relationship('ChangePasswordRequest', backref='user')
 
 
     def __init__(self, username, email, password, confirmation_uuid, image_name):

@@ -16,10 +16,10 @@ from app import db, app
 from ...services.smtp_server import smtp_server
 
 # Emails
-from ...emails.confirmation_email import gen_confirmation_email_body
+from ...emails import confirm_account_email, change_password_email
 
 # Database Models
-from ...database.models import Account, Follow, Video
+from ...database.models import Account, Follow, Video, ChangePasswordRequest
 
 # Getting dotenv variables
 dotenv_variables = dotenv_values('.env')
@@ -109,24 +109,25 @@ class AccountController():
                     }, 400
 
             # Send confirmation email
-            confirmation_uuid = f"{uuid4().hex}{uuid4().hex}"
+            uuid = f"{uuid4().hex}{uuid4().hex}"
 
-            confirmation_email = MIMEMultipart()
-            confirmation_email['Subject'] = 'Confirm your email'
+            email = MIMEMultipart()
+            email['Subject'] = 'Confirm your email'
 
-            confirmation_email_body = gen_confirmation_email_body(
-                confirm_url=f"{request.url_root}/account/create/confirm/email?uuid={confirmation_uuid}",
+            confirmation_email_body = confirm_account_email.email_body(
+                confirm_account_page_url=f"{request.url_root}/account/create/confirm/email?uuid={uuid}",
                 server_url=request.url_root
             )
-            confirmation_email.attach(
-                MIMEText(confirmation_email_body, 'html'))
+            email.attach(
+                MIMEText(confirmation_email_body, 'html')
+            )
 
             try:
 
                 smtp_server.sendmail(
                     from_addr=SERVER_EMAIL,
                     to_addrs=user_email,
-                    msg=confirmation_email.as_bytes()
+                    msg=email.as_bytes()
                 )
 
             except:
@@ -154,7 +155,7 @@ class AccountController():
                 username=username,
                 email=user_email,
                 password=hashed_password,
-                confirmation_uuid=confirmation_uuid,
+                confirmation_uuid=uuid,
                 image_name=user_image_name
             )
 
@@ -419,6 +420,7 @@ class AccountController():
                 'message': 'something unexpected happened'
             }, 500
 
+    @staticmethod
     def get_infos(user, username):
         
         try:
@@ -484,7 +486,8 @@ class AccountController():
                         'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
                         'id': video.id,
                         'name': video.name,
-                        'liked': liked
+                        'liked': liked,
+                        'comments': len(video.comments)
                     },
                     'owner': {
                         'username': video.owner.username,
@@ -503,7 +506,8 @@ class AccountController():
                 'followers': account.followers,
                 'videos': len(account.videos),
                 'image_url': f'{request.url_root}/account/image/{account.image_name}',
-                'id': account.id
+                'id': account.id,
+                'this_account_is_your': account.id == user.id
             }
             
             return {
@@ -521,6 +525,7 @@ class AccountController():
                 'message': 'something unexpected happened'
             }, 500
             
+    @staticmethod
     def get_followed_accounts(user):
         try: 
             
@@ -542,7 +547,8 @@ class AccountController():
                 'status': 'error',
                 'message': 'something unexpected happened'
             }, 500
-            
+    
+    @staticmethod
     def search_accounts(user):
         
         try:
@@ -580,6 +586,82 @@ class AccountController():
             return {
                 'status': 'ok',
                 'results': accounts_list
+            }
+            
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'something unexpected happened'
+            }, 500
+    
+    @staticmethod
+    def change_password():
+                
+        try: 
+            user_email = request.form.get('email')
+            
+            if not user_email:
+                return {
+                    'status': 'error',
+                    'message': 'Email not provided'
+                }, 400
+                
+                
+            user_account = Account.query.filter_by(
+                email=user_email
+            ).first()
+            
+            if not user_account:
+                return {
+                    'status': 'error',
+                    'message': 'Account not found.'
+                }
+                
+            uuid = f"{uuid4().hex}{uuid4().hex}"
+            
+            email = MIMEMultipart()
+            email['Subject'] = 'Change Password'
+            
+            
+            email_body = change_password_email.email_body(
+                change_password_page_url=f"{request.url_root}/account/change-password?uuid={uuid}",
+                server_url=request.url_root
+            )
+            
+            email.attach(
+                MIMEText(email_body, 'html')
+            )
+
+            try:
+
+                smtp_server.sendmail(
+                    from_addr=SERVER_EMAIL,
+                    to_addrs=user_email,
+                    msg=email.as_bytes()
+                )
+
+            except:
+
+                return {
+                    'status': 'error',
+                    'message': 'Error to send confirmation email'
+                }, 400
+                
+                
+            change_password_request = ChangePasswordRequest(
+                uuid=uuid,
+                user_id=user_account.id
+            )
+            
+            db.session.add(change_password_request)
+            db.session.commit()
+            
+            
+            return {
+                'status': 'ok'
             }
             
         except Exception as error:

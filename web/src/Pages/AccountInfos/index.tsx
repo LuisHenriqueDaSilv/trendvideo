@@ -28,7 +28,8 @@ interface userdataInterface {
     id: number,
     image_url: string,
     username: string,
-    videos: number
+    videos: number,
+    this_account_is_your: boolean
 }
 
 export function AccountInfos(){
@@ -64,7 +65,7 @@ export function AccountInfos(){
         }
 
         const response = await api.get(
-            `/account/${username}`,
+            `/account/infos/${username}`,
             {headers}
         ).catch((error) => {
 
@@ -226,7 +227,16 @@ export function AccountInfos(){
                         }
                     </button>
                 </div>
-
+                {
+                    userdata.this_account_is_your&& (
+                        <Link
+                            to="/myaccount"
+                            className={styles.editAccountButton}
+                        >
+                            Edit account
+                        </Link>
+                    )
+                }
             </header>
 
             <div className={styles.videosArea}>

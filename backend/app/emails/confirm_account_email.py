@@ -1,4 +1,4 @@
-def gen_confirmation_email_body(confirm_url, server_url):
+def email_body(confirm_account_page_url, server_url):
 
     return f"""
         <div 
@@ -34,7 +34,7 @@ def gen_confirmation_email_body(confirm_url, server_url):
             "
         >Was maked one request to create account using your email.</p>
         <a
-            href="{confirm_url}"
+            href="{confirm_account_page_url}"
             style="
                 text-decoration: none;
                 color: #0B8308;

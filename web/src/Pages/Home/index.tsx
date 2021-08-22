@@ -62,9 +62,12 @@ export function Home(){
                 <div/>
 
                 <SearchBar/>
-                <button className={styles.createVideoButton}>
+                <Link
+                    to="/video/post" 
+                    className={styles.createVideoButton}
+                >
                     +
-                </button>
+                </Link>
             </footer>
 
         </div>

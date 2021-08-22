@@ -31,7 +31,7 @@ class VideoController():
             if not description:
                 description = ''
 
-            if len(description) >= 200:
+            if len(description) > 200:
                 return {
                     'status': 'error',
                     'message': 'Invalid description length'
@@ -135,13 +135,19 @@ class VideoController():
         try:
 
             video_id = request.form.get('video_id')
+            
+            if not video_id:
+                return {
+                    'status': 'error',
+                    'message': 'Video id not provided'
+                } 
 
             try:
                 video_id = int(video_id)
             except:
                 return {
                     'status': 'error',
-                    'message': 'invalid video id'
+                    'message': 'Invalid video id'
                 }, 400
 
             video = Video.query.filter_by(
@@ -268,7 +274,8 @@ class VideoController():
                         'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
                         'id': video.id,
                         'name': video.name,
-                        'liked': liked
+                        'liked': liked,
+                        'comments': len(video.comments)
                     },
                     'owner': {
                         'username': video.owner.username,
@@ -439,7 +446,9 @@ class VideoController():
                         'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
                         'id': video.id,
                         'name': video.name,
-                        'liked': liked
+                        'liked': liked,
+                        'comments': len(video.comments)
+                        
                     },
                     'owner': {
                         'username': video.owner.username,

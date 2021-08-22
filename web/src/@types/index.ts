@@ -13,7 +13,8 @@ export interface VideoType {
         created_at: string,
         thumbnail_url: string,
         name: string,
-        liked: boolean
+        liked: boolean,
+        comments: number
     },
     owner: {
         username: string,

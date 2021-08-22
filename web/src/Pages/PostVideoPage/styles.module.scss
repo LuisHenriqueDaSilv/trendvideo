@@ -2,16 +2,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-
+    
     .container {
         background-color: var(--grey);
         min-height: 90rem;
         width: 160rem;
-        border-radius: 20px;
+        border-radius: 0 0 10px 10px;
         padding: 8rem;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
 
         gap: 2rem;
 
@@ -70,7 +70,6 @@
                 }
     
                 div {
-    
                     display: flex;
                     flex-direction: row;
                     justify-content: space-between;
@@ -86,12 +85,11 @@
                         background-color: black;
                         height: 31.5rem;
                         width: 26.5rem;
-    
+                        border-radius: 5px;
+                        cursor: pointer;
                         background-size: contain;
                         background-repeat: no-repeat;
-                        background-position: center center;
-                        cursor: pointer;
-    
+                        background-position: center center;    
                     }
     
                     .thumbnailTextImage {
@@ -99,17 +97,20 @@
                         justify-content: center;
                         align-items: center;
                         text-align: center;
-                        color: #fff;
-                        font-size: 1.5rem;
                         width: 100%;
                         height: 100%;
                         gap: 7rem;
     
-                        p {
+                        .selectThumbnailButton {
+                            background: none;
+                            border: 0;
                             width: 100%;
+                            color: #fff;
+                            font-size: 1.5rem;
+                            cursor: pointer;
                         }
     
-                        button {
+                        .removeThumbnailbutton {
                             background-color: var(--dark-pink);
                             border: 0;
                             border-radius: 5px;
@@ -117,7 +118,7 @@
                             height: 4rem;
                             
                             color: #fff;
-                            font-weight: 500;
+                            font-weight: 700;
                             font-size: 1.5rem;
                             cursor: pointer;
                         }
@@ -147,6 +148,161 @@
 
         }
 
+        .videoSection {
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 5rem;
 
+            div {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                background-color: var(--dark-grey);
+                height: 60rem;
+                width: 33.9rem;
+                border-radius: 5px;
+                cursor: pointer;
+
+                p {
+                    color: #fff;
+                    font-size: 1.7rem;
+                    font-weight: 700;
+                    margin: 2rem;
+
+                }
+
+                video {
+                    height: 100%;
+                    width: 100%;
+                    border-radius: 5px;
+                }
+            }
+            div:hover {
+                opacity: 0.7;
+            }
+
+            button {
+                border: 0;
+                border-radius: 5px;
+                height: 5rem;
+                width: 51%;
+                background-color: var(--dark-pink);
+                color: #fff;
+                font-weight: 700;
+                font-size: 1.7rem;
+                cursor: pointer;
+            }
+
+            button:hover {
+                opacity: 0.7;
+            }
+            
+        }
+
+
+    }
+}
+
+@media (max-width: 1050px){
+    .overlay {
+        
+        .container {
+            background: none;
+            flex-direction: column-reverse;
+            width: 90vw;
+            align-items: center;
+            padding: 3rem;
+            justify-content: center;
+            min-height: auto;
+
+
+            section {
+                display: flex;
+                align-items: center;
+                width: 20vw;
+            }
+
+            .videoInfosSection {
+
+                margin-top: 3rem;
+                .descriptionArea{
+                    width: 90vw;
+
+                    label {
+                        font-size: 1.2rem;
+                    }
+                    
+                    textarea {
+                        max-height: 15rem;
+                        min-height: 3rem;
+                        // height: 1rem;
+                        font-size: 1rem;
+                    }
+                }
+
+                .thumbnailArea {
+                    width: 80vw;
+                    background-color: var(--dark-grey);
+
+                    header {
+                        h1 {
+                            font-size: 1.3rem;
+                        }
+                    }
+
+                    div {
+                        flex-direction: column-reverse;
+                        align-items: center;
+
+                        .thumbnailTextImage {
+                            gap: 2rem;
+                            padding: 0;
+                            margin-top: 3rem;
+
+                            p {
+                                font-size: 1rem;
+                                font-size: 700;
+                            }
+
+                            button {
+                                height: 3rem;
+                                font-size: 1rem;
+                            }
+
+                        }
+
+                        .thumbnailImage {
+                            height: 16rem;
+                            width: 9rem;
+                        }
+                    }
+                }
+
+                .postVideoButton {
+                    width: 80vw;
+                    height: 4rem;
+                    font-size: 1.5rem;
+                }
+
+            }
+
+            .videoSection {
+                gap: 1rem;
+
+                div {
+                    width: 80vw;
+                    height: 70vh;
+                }
+
+                button {
+                    width: 90vw;
+                    height: 4rem;
+                    font-size: 1.5rem;
+                }
+
+            }
+        }
     }
 }

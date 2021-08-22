@@ -279,7 +279,7 @@ export function CommentsArea({video}:CommentsAreaProps){
 
                     <div className={styles.videoInfosContainer}>
                         <div>
-                            <label>12k</label>
+                            <label>{video.video_data.comments}</label>
                             <img
                                 alt="Comments"
                                 src="/icons/Comments.png"

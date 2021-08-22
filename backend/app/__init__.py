@@ -46,4 +46,4 @@ app.register_blueprint(comments_router)
 
 
 #Database models
-from .database.models import account_model, video_model, like_model, follow_model, comment_model #Used in database migration
+from .database.models import account_model, video_model, like_model, follow_model, comment_model, change_password_request_model #Used in database migration
