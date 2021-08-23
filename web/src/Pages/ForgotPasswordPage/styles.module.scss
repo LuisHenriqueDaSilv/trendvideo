@@ -1,0 +1,92 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color);
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    width: auto;
+    background: linear-gradient(to left bottom , var(--background-color) 50% ,var(--dark-green) 10%);
+
+    .infosAreas {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--grey);
+        height: auto;
+        width: 50rem;
+        border-radius: 5px;
+        color: #fff;
+        padding: 10rem 3rem 10rem 3rem;
+        
+        h1 { 
+            font-size: 2.5rem;
+            margin-bottom: 8rem;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3rem;
+            width: 100%;
+
+            .inputArea {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 90%;
+                margin-bottom: 1rem;
+
+                label {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                }
+
+                input {
+                    width: 100%;
+                    border: 0;
+                    border-radius: 5px;
+                    height: 4rem;
+                    padding: 1rem;
+                    color: var(--grey);
+                    font-weight: 500;
+                    font-size: 1.5rem;
+                }
+            }
+
+            p {
+                font-size: 1.5rem;
+                text-align: center;
+                color: #c4c4c4;
+            }
+
+            button {
+                height: 4rem;
+                width: 90%;
+                background-color: var(--green);
+                border: 0;
+                border-radius: 5px;
+                color: #fff;
+                font-size: 1.7rem;
+                font-weight: 700;
+                cursor: pointer;
+            }
+
+            button:hover {
+                opacity: 0.5;
+            }
+        }
+
+    }
+}
+
+body {
+    background-color: var(--dark-green);
+}

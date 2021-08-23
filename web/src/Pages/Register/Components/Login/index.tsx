@@ -120,13 +120,12 @@ export function Login(){
                     Login
                 </button>
                 <div className={styles.optionsContainer}>
-                    <a 
+                    <Link
                         style={{textDecoration: 'none'}} 
-                        href="https://google.com.br" 
-                        target="__blank"
+                        to="/forgot-password" 
                     >
                         forgot password?
-                    </a>
+                    </Link>
                     <Link 
                         style={{textDecoration: 'none'}}
                         to="/create-account"

@@ -347,7 +347,7 @@ class AccountController():
             if user.status != 'OK':
                 return {
                     'status': 'error',
-                    'message': f'Unable follow another account with {user.status} account status'
+                    'message': f'To follow one user you need to confirm your email first'
                 }, 400
 
             followed_user_id = request.form.get('followed_user_id')
@@ -617,14 +617,13 @@ class AccountController():
             if not user_account:
                 return {
                     'status': 'error',
-                    'message': 'Account not found.'
-                }
+                    'message': 'Could not find any account with this email.'
+                }, 404
                 
             uuid = f"{uuid4().hex}{uuid4().hex}"
             
             email = MIMEMultipart()
             email['Subject'] = 'Change Password'
-            
             
             email_body = change_password_email.email_body(
                 change_password_page_url=f"{request.url_root}/account/change-password?uuid={uuid}",
@@ -647,7 +646,7 @@ class AccountController():
 
                 return {
                     'status': 'error',
-                    'message': 'Error to send confirmation email'
+                    'message': 'Error to send change password email'
                 }, 400
                 
                 
@@ -659,11 +658,97 @@ class AccountController():
             db.session.add(change_password_request)
             db.session.commit()
             
-            
             return {
                 'status': 'ok'
             }
             
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'something unexpected happened'
+            }, 500
+            
+    @staticmethod
+    def confirm_change_password():
+                
+        try:
+            
+            uuid = request.form.get('uuid')
+            user_email = request.form.get('email')
+            new_password = request.form.get('new_password')
+            
+            if not uuid:
+                return {
+                    'status': 'error',
+                    'message': 'Uuid not provided'
+                }, 400
+            
+            if not user_email or not new_password:
+                return {
+                    'status': 'error',
+                    'message': 'Email or new password not provided'
+                }, 400
+                        
+            change_password_requests = ChangePasswordRequest.query.filter_by(
+                uuid=uuid
+            ).join(
+                ChangePasswordRequest.user
+            ).filter_by(
+                email=user_email
+            ).all()
+            
+            if not change_password_requests:
+                return {
+                    'status': 'error',
+                    'message': 'There is no password change request for the account using the email or uuid entered.'
+                }, 404
+            
+            user_account = Account.query.filter_by(
+                id=change_password_requests[0].user_id
+            ).first()
+            
+            if not user_account:
+                return {
+                    'status': 'error',
+                    'message': 'Account not found'
+                }, 404
+            
+            hashed_new_password = bcrypt.hashpw(
+                new_password.encode(), 
+                bcrypt.gensalt()
+            )
+            
+            user_account.password = hashed_new_password
+            for change_password_request in change_password_requests:
+                db.session.delete(change_password_request)    
+            db.session.commit()
+            
+            return {
+                'status': 'ok'
+            }
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'something unexpected happened'
+            }, 500
+            
+    @staticmethod
+    def update(user):
+        
+        # Get new username and new userimage from request 
+        # Get user from database
+        # make update each one separately 
+        # Save updates in database
+        # return response 
+        
+        try: 
+            return 'ok'
         except Exception as error:
 
             app.logger.error(error)

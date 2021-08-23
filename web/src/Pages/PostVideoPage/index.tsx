@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom'
 
 //Contexts
 import alertContext from '../../Contexts/AlertContext'
+import loadingContext from '../../Contexts/LoadingContext'
 
 //Services
 import api from '../../Services/Api'
@@ -17,6 +18,7 @@ export function PostVideoPage(){
     const history = useHistory()
 
     const {showAlert} = useContext(alertContext)
+    const {disableLoading, enableLoading} = useContext(loadingContext)
     const [cookies] = useCookies(['authorization'])
 
     const [videoThumbnail, setVideoThumbnail] = useState<any>()
@@ -96,6 +98,7 @@ export function PostVideoPage(){
 
     async function handlePostVideo(){
 
+
         if(!video){
             showAlert({
                 title: 'error',
@@ -103,6 +106,8 @@ export function PostVideoPage(){
             })
             return 
         }
+
+        enableLoading()
 
         const token = cookies.token
         const headers = {
@@ -148,9 +153,8 @@ export function PostVideoPage(){
             return false
         })
 
-        console.log(response)
-
         if(!response){
+            disableLoading()
             return
         }
 
@@ -158,9 +162,10 @@ export function PostVideoPage(){
             title: 'Post Video',
             message: 'Video posted with sucess'
         })
+
+        disableLoading()
         
         history.push('/')
-
 
     }
 

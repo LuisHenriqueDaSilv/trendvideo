@@ -4,6 +4,7 @@ import {BrowserRouter, Route, Switch, Redirect} from 'react-router-dom'
 import {isAuthenticated} from './Services/Authorization'
 
 //Pages
+import {ForgotPasswordPage} from './Pages/ForgotPasswordPage'
 import {Register} from './Pages/Register'
 import {Home} from './Pages/Home'
 import {VideoPage} from './Pages/Video'
@@ -56,6 +57,7 @@ export function Routes(){
                 <AuthenticatedRoute path="/search" Component={SearchPage}/>
                 <AuthenticatedRoute path="/video/post" Component={PostVideoPage}/>
                 <AuthenticatedRoute path="/myaccount" Component={AccountOptions}/>
+                <Route path="/forgot-password" component={ForgotPasswordPage}/>
                 <UnauthenticatedRoute path="/" Component={Register} />
             </Switch>
         </BrowserRouter>
