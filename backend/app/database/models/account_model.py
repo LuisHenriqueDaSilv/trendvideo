@@ -17,7 +17,6 @@ class Account(db.Model):
     email = db.Column(db.Text, unique=True)
     password = db.Column(db.Text)
     followers = db.Column(db.Integer)
-    confirmation_uuid = db.Column(db.Text)
     status = db.Column(db.Text)
     image_name = db.Column(db.Text)
     created_at = db.Column(db.Text)
@@ -29,13 +28,16 @@ class Account(db.Model):
         'ChangePasswordRequest', 
         backref='user'
     )
+    confirm_account_process = db.relationship(
+        'ConfirmAccountProcess',
+        backref='owner'
+    )
 
     def __init__(
         self, 
         username, 
         email, 
         password, 
-        confirmation_uuid,
         image_name
     ):
 
@@ -47,7 +49,6 @@ class Account(db.Model):
         self.username = username
         self.password = password
         self.image_name = image_name
-        self.confirmation_uuid = confirmation_uuid
 
     def __repr__(self):
         return f"<Account {self.username}>"

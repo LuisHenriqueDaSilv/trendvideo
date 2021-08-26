@@ -50,11 +50,12 @@
 
         .container {
             background-color: #20282C;
-            height: 49rem;
+            height: 30rem;
             width: 85rem;
             border-radius: 20px;
-            display: grid;
-            grid-template-rows: 1fr 1fr;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             position: absolute;
             top: 10px;
@@ -146,6 +147,7 @@
             .container {
                 background: none;
                 width: 100vw;
+                height: 100vh;
                 bottom: 0;
                 justify-content: center;
                 align-items: center;
@@ -176,8 +178,6 @@
 
         }
 
-
-
     </style>
     <body>
         <div class="overlay">
@@ -197,23 +197,6 @@
                             <button type="submit">Confirm</button>
                         </div>
                     </form>
-                </section>
-
-                <section>
-                    <h1>Forgot password?</h1>
-                    <p>If you forgot your password, confirm your email to cancel confirmation process and try creating the account again</p>
-                    
-                    <form onsubmit="emailFormSubmit(event)">
-                        <label>Email</label>
-                        <div>
-                            <input
-                                type="text"
-                                id="email_input"
-                            />
-                            <button type="submit">Confirm</button>
-                        </div>
-                    </form>
-
                 </section>
 
             </div>
@@ -259,40 +242,6 @@
 
 
             return false  
-        }
-
-        function emailFormSubmit(event){
-
-            event.preventDefault()
-
-            const queryParams = new URLSearchParams(document.location.search)
-            const uuid = queryParams.get('uuid')
-
-            const cancelEmailInput = document.getElementById('email_input')
-            const cancelEmailValue = cancelEmailInput.value
-
-            const data  = new FormData()
-
-            data.append('uuid', uuid)
-            data.append('email', cancelEmailValue)
-
-            fetch('/account/create/cancel', {
-                method: 'POST',
-                body: data
-            }).then(async(response) => {
-
-                const responseData = await response.json()
-
-                if(responseData.status === 'error'){
-
-                    alert(`Error: ${responseData.message}`)
-
-                }else {
-                    alert(`Your account confirm process are delete with sucess`)
-                }
-            })
-
-            return false
         }
 
     </script>

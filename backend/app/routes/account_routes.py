@@ -22,7 +22,13 @@ from ..utils import get_public_video_data, format_number
 from ..emails import confirm_account_email, change_password_email
 
 # Database Models
-from ..database.models import Account, Follow, Video, ChangePasswordRequest
+from ..database.models import (
+    Account, 
+    Follow, 
+    Video, 
+    ChangePasswordRequest,
+    ConfirmAccountProcess
+) 
 
 # Middlewares
 from ..middlewares.verify_token import verify_token
@@ -155,11 +161,17 @@ def create_account():
             username=username,
             email=user_email,
             password=encrypted_password,
-            confirmation_uuid=confirmation_uuid,
             image_name=profile_image_name
         )
-
         db.session.add(user_account)
+        db.session.commit()
+        
+        confirm_create_process = ConfirmAccountProcess(
+            uuid=confirmation_uuid,
+            owner_id=user_account.id
+        )
+
+        db.session.add(confirm_create_process)
         db.session.commit()
 
         return {'status': 'ok'}
@@ -191,18 +203,19 @@ def confirm_create_account():
                 'message': 'Password or uuid not provided'
             }, 400
 
-        account_to_confirm_create = Account.query.filter_by(
-            confirmation_uuid=uuid, 
-            status='awaiting confirmation'
+        
+        confirm_account_process = ConfirmAccountProcess.query.filter_by(
+            uuid=uuid, 
         ).first()
-        if not account_to_confirm_create:
+        
+        if not confirm_account_process:
             return {
                 'status': 'error',
                 'message': 'Not exist account waiting for confirmation with the uuid provided'
             }, 400
             
         
-        account_password = account_to_confirm_create.password
+        account_password = confirm_account_process.owner.password
         user_password_match = bcrypt.checkpw(
             password=password_sended_by_user.encode(),
             hashed_password=account_password
@@ -213,51 +226,13 @@ def confirm_create_account():
                 'message': 'Incorrect password'
             }, 400
             
-        
-        account_to_confirm_create.status = 'OK'
-        account_to_confirm_create.confirmation_uuid = 'None'
-        db.session.commit()
-
-        return {'status': 'ok'}
-
-    except Exception as error:
-
-        app.logger.error(error)
-
-        return {
-            'status': 'error',
-            'message': 'something unexpected happened'
-        }, 500
-
-@accounts_router.route('/account/create/cancel', methods=['POST'])
-def cancel_create_account():
-
-    try:
-
-        user_email = request.form.get('email')
-        uuid = request.form.get('uuid')
-
-        if not user_email or not uuid:
-            return {
-                'status': 'error',
-                'message': 'Email or uuid not provided'
-            }, 400
             
-
-        account_to_delete = Account.query.filter_by(
-            email=user_email, 
-            status='awaiting confirmation', 
-            confirmation_uuid=uuid
+        account_to_confirm_create = Account.query.filter_by(
+            id=confirm_account_process.owner_id
         ).first()
         
-        if not account_to_delete:
-            return {
-                'status': 'error',
-                'message': 'Not exist account awaiting confirmation with provided email and uuid.'
-            }, 404
-
-
-        db.session.delete(account_to_delete)
+        account_to_confirm_create.status = 'OK'
+        db.session.delete(confirm_account_process)
         db.session.commit()
 
         return {'status': 'ok'}

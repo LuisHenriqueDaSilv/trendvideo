@@ -45,5 +45,6 @@ from .database.models import (
     like_model, 
     follow_model, 
     comment_model, 
-    change_password_request_model
+    change_password_request_model,
+    confirm_account_process_model
 ) 
