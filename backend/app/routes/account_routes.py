@@ -1,10 +1,9 @@
-from flask import Blueprint, render_template, send_file, send_from_directory, request
+from flask import Blueprint, render_template, send_from_directory, request
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import date, datetime, timedelta
 from uuid import uuid4
 from dotenv import dotenv_values
-from operator import or_
 import bcrypt
 import jwt
 import sqlalchemy
@@ -15,6 +14,9 @@ from app import db, app
 
 # Services
 from ..services.smtp_server import smtp_server
+
+# Utils
+from ..utils import get_public_video_data, format_number
 
 # Emails
 from ..emails import confirm_account_email, change_password_email
@@ -30,14 +32,13 @@ dotenv_variables = dotenv_values('.env')
 SERVER_EMAIL = dotenv_variables.get('SERVER_EMAIL')
 JWT_SECRET_KEY = dotenv_variables.get('JWT_SECRET_KEY')
 
-
 accounts_router = Blueprint(
     'account_crud',
     __name__
 )
 
 @accounts_router.route('/account/create', methods=['POST'])
-def create():
+def create_account():
 
     try:
 
@@ -45,24 +46,24 @@ def create():
         user_email = request.form.get('email')
         password = request.form.get('password')
 
-        invalid_username = not username or len(
+
+        username_is_invalid = not username or len(
             username
         ) > 20 or len(
             username
         ) < 5 or " " in username.strip()
-        
-        if invalid_username:
+        if username_is_invalid:
             return {
                 'status': 'error',
                 'message': 'Invalid username'
             }, 400
 
-        invalid_password = not password or len(
+        password_is_invalid = not password or len(
             password
         ) >= 30 or len(
             password
         ) < 8 or " " in password.strip()
-        if invalid_password:
+        if password_is_invalid:
             return {
                 'status': 'error',
                 'message': 'Invalid password'
@@ -70,100 +71,92 @@ def create():
 
         username = username.strip()
         password = password.strip()
-
+        
+        
         if not user_email:
             return {
                 'status': 'error',
                 'message': 'Invalid email'
             }, 400
-
+            
         account_using_same_email = Account.query.filter_by(
             email=user_email
         ).first()
-
         if account_using_same_email:
             return {
                 'status': 'error',
-                'message': 'There is already an account using this email'
+                'message': 'There is already an account using the provided email'
             }, 400
 
         account_using_same_username = Account.query.filter_by(
             username=username
         ).first()
-
         if account_using_same_username:
             return {
                 'status': 'error',
-                'message': 'There is already an account using this username'
+                'message': 'There is already an account using the provided username'
             }, 400
 
 
-        # check if the image sent by the user is valid
-        user_image = request.files.get('profile_image')
-        
-        if user_image:
+        profile_image = request.files.get('profile_image')
+        if profile_image:
             
             allowed_image_mimetypes = [
                 "image/png",
                 "image/jpeg"
-            ]            
-                
-            if user_image.mimetype not in allowed_image_mimetypes:
-
+            ]             
+            if profile_image.mimetype not in allowed_image_mimetypes:
                 return {
                     'status': 'error',
                     'message': 'Invalid image'
                 }, 400
 
-        # Send confirmation email
-        uuid = f"{uuid4().hex}{uuid4().hex}"
 
         email = MIMEMultipart()
-        email['Subject'] = 'Confirm your email'
+        email['Subject'] = 'Confirm your TrendVideo account'
 
-        confirmation_email_body = confirm_account_email.email_body(
-            confirm_account_page_url=f"{request.url_root}/account/create/confirm/email?uuid={uuid}",
+        confirmation_uuid = f"{uuid4().hex}{uuid4().hex}"
+        
+        email_body = confirm_account_email.body(
+            confirm_account_page_url=f"{request.url_root}/account/create/confirm/email?uuid={confirmation_uuid}",
             server_url=request.url_root
         )
         email.attach(
-            MIMEText(confirmation_email_body, 'html')
+            MIMEText(email_body, 'html')
         )
-
+        
         try:
-
             smtp_server.sendmail(
                 from_addr=SERVER_EMAIL,
                 to_addrs=user_email,
                 msg=email.as_bytes()
             )
-
         except:
-
             return {
                 'status': 'error',
-                'message': 'Error to send confirmation email'
+                'message': 'Something went wrong in the process to send the email to confirm your account'
             }, 400
-
-        # save user image
-        if not user_image:
-            user_image_name = 'default.jpg'
+        
+            
+        if not profile_image:
+            profile_image_name = 'default.jpg'
         else:
-            user_image_name = f'{uuid4().hex}-{date.today()}.png'
-            user_image.save(
-                f'./app/database/files/profile_image/{user_image_name}'
+            profile_image_name = f'{uuid4().hex}-{date.today()}.png'
+            profile_image.save(
+                f'./app/database/files/profile_image/{profile_image_name}'
             )
 
-        # encrypting the password and saving in database
-        hashed_password = bcrypt.hashpw(
+
+        encrypted_password = bcrypt.hashpw(
             password.encode(), bcrypt.gensalt()
         )
 
         user_account = Account(
             username=username,
             email=user_email,
-            password=hashed_password,
-            confirmation_uuid=uuid,
-            image_name=user_image_name
+            password=encrypted_password,
+            confirmation_uuid=confirmation_uuid,
+            image_name=profile_image_name
         )
 
         db.session.add(user_account)
@@ -181,54 +174,49 @@ def create():
         }, 500
 
 @accounts_router.route('/account/create/confirm/email', methods=['GET'])
-def confirm_create_page():
+def static_confirm_create_account_page():
     return render_template('confirm_email.html')
 
 @accounts_router.route('/account/create/confirm', methods=['POST'])
-def confirm_create():
+def confirm_create_account():
 
     try:
 
-        confirm_password = request.form.get('confirm_password')
+        password_sended_by_user = request.form.get('confirm_password')
         uuid = request.form.get('uuid')
-
-        if not confirm_password or not uuid:
+        
+        if not password_sended_by_user or not uuid:
             return {
                 'status': 'error',
                 'message': 'Password or uuid not provided'
             }, 400
 
-        user_account = Account.query.filter_by(
+        account_to_confirm_create = Account.query.filter_by(
             confirmation_uuid=uuid, 
             status='awaiting confirmation'
         ).first()
-
-        if user_account:
-
-            user_password = user_account.password
-
-            user_password_match = bcrypt.checkpw(
-                password=confirm_password.encode(),
-                hashed_password=user_password
-            )
-
-            if user_password_match:
-
-                user_account.status = 'OK'
-                user_account.confirmation_uuid = 'None'
-                db.session.commit()
-
-            else:
-                return {
-                    'status': 'error',
-                    'message': 'Incorrect password'
-                }, 400
-
-        else:
+        if not account_to_confirm_create:
             return {
                 'status': 'error',
-                'message': 'Invalid uuid'
+                'message': 'Not exist account waiting for confirmation with the uuid provided'
             }, 400
+            
+        
+        account_password = account_to_confirm_create.password
+        user_password_match = bcrypt.checkpw(
+            password=password_sended_by_user.encode(),
+            hashed_password=account_password
+        )
+        if not user_password_match:
+            return {
+                'status': 'error',
+                'message': 'Incorrect password'
+            }, 400
+            
+        
+        account_to_confirm_create.status = 'OK'
+        account_to_confirm_create.confirmation_uuid = 'None'
+        db.session.commit()
 
         return {'status': 'ok'}
 
@@ -242,7 +230,7 @@ def confirm_create():
         }, 500
 
 @accounts_router.route('/account/create/cancel', methods=['POST'])
-def cancel_create():
+def cancel_create_account():
 
     try:
 
@@ -254,24 +242,25 @@ def cancel_create():
                 'status': 'error',
                 'message': 'Email or uuid not provided'
             }, 400
+            
 
-        user_account = Account.query.filter_by(
+        account_to_delete = Account.query.filter_by(
             email=user_email, 
             status='awaiting confirmation', 
             confirmation_uuid=uuid
         ).first()
-
-        if user_account:
-            db.session.delete(user_account)
-            db.session.commit()
-
-            return {'status': 'ok'}
-
-        else:
+        
+        if not account_to_delete:
             return {
                 'status': 'error',
-                'message': 'There is no confirmation process with this email and uuid.'
+                'message': 'Not exist account awaiting confirmation with provided email and uuid.'
             }, 404
+
+
+        db.session.delete(account_to_delete)
+        db.session.commit()
+
+        return {'status': 'ok'}
 
     except Exception as error:
 
@@ -283,7 +272,7 @@ def cancel_create():
         }, 500
 
 @accounts_router.route('/account/login', methods=['POST'])
-def login():
+def login_account():
 
     try:
 
@@ -296,49 +285,49 @@ def login():
                 'message': 'Password or email not provided'
             }, 400
 
-        user_account = Account.query.filter_by(
+
+        account_to_login = Account.query.filter_by(
             email=user_email
         ).first()
-
-        if not user_account:
+        if not account_to_login:
             return {
                 'status': 'error',
-                'message': 'No account was found with this email.'
+                'message': 'Not exist any account with provided email.'
             }, 404
-
-        user_password_match = bcrypt.checkpw(
+            
+        
+        passwords_match = bcrypt.checkpw(
             user_password.encode(),
-            user_account.password
+            account_to_login.password
         )
-
-        if not user_password_match:
+        if not passwords_match:
             return {
                 'status': 'error',
                 'message': 'Invalid password'
             }, 400
 
+
         jwt_payload = {
-            "id": user_account.id,
+            "id": account_to_login.id,
             "exp": datetime.utcnow() + timedelta(days=3)  # 72 hours
         }
-
         token_jwt = jwt.encode(
             payload=jwt_payload,
             key=JWT_SECRET_KEY, 
             algorithm="HS256"
         )
-
-        user_infos_to_send = {
-            'username': user_account.username,
-            'image_url': f'{request.url_root}/account/image/{user_account.image_name}',
-            'followers': user_account.followers,
-            'status': user_account.status
+                
+        user_public_infos = {
+            'username': account_to_login.username,
+            'image_url': f'{request.url_root}/account/image/{account_to_login.image_name}',
+            'followers': account_to_login.followers,
+            'status': account_to_login.status
         }
 
         return {
             'status': 'ok',
             'token': token_jwt,
-            'user': user_infos_to_send,
+            'user': user_public_infos,
         }
 
     except Exception as error:
@@ -356,66 +345,58 @@ def follow(user):
 
     try:
         
-        if user.status != 'OK':
+        if user.status == 'awaiting confirmation':
             return {
                 'status': 'error',
-                'message': f'To follow one user you need to confirm your email first'
+                'message': f'To follow one account you need confirm create account first. Check your email'
             }, 400
 
-        followed_user_id = request.form.get('followed_user_id')
-
-        try:
-            followed_user_id = int(followed_user_id)
-        except:
+        id_of_user_to_follow = request.form.get('followed_user_id')
+        if not id_of_user_to_follow:
             return {
                 'status': 'error',
-                'message': 'Invalid followed user id'
+                'message': 'ID of user to follow not provided'
             }, 400
 
-        if not followed_user_id:
-            return {
-                'status': 'error',
-                'message': 'Followed user id is not provided'
-            }, 400
-
-        if followed_user_id == user.id:
+        if id_of_user_to_follow == user.id:
             return {
                 'status': 'error',
                 'message': "You can't follow yourself"
             }, 400
-
-        followed_user = Account.query.filter_by(
-            id=followed_user_id
+            
+        
+        user_to_follow = Account.query.filter_by(
+            id=id_of_user_to_follow
         ).first()
-
-        if not followed_user:
+        if not user_to_follow:
             return {
                 'status': 'error',
                 'message': 'User not found'
             }, 404
-
+        
+            
         existing_follow = Follow.query.filter_by(
-            user_id=user.id, followed_user_id=followed_user.id
+            user_id=user.id, 
+            followed_user_id=user_to_follow.id
         ).first()
-
+        
         if existing_follow:
             db.session.delete(existing_follow)
-            followed_user.followers = followed_user.followers - 1
+            user_to_follow.followers = user_to_follow.followers - 1
             db.session.commit()
 
             return {
                 'status': 'ok',
                 'message': 'Unfollow'
             }
-
         else:
             follow = Follow(
                 user_id=user.id,
-                followed_user_id=followed_user.id
+                followed_user_id=user_to_follow.id
             )
 
-            followed_user.followers = followed_user.followers + 1
             db.session.add(follow)
+            user_to_follow.followers = user_to_follow.followers + 1
             db.session.commit()
 
             return {
@@ -432,29 +413,30 @@ def follow(user):
             'message': 'something unexpected happened'
         }, 500
 
-@accounts_router.route('/account/infos/<path:username>')
+@accounts_router.route('/account/infos/<path:searched_user_username>')
 @verify_token
-def get_infos(user, username):
+def get_infos(user, searched_user_username):
     
     try:
-        if not username:
+        
+        if not searched_user_username:
             return {
                 'status': 'error',
                 'message': 'Username not provided'
             }, 400
-            
-        account = Account.query.filter_by(
-            username=username
-        ).first()
         
-        if not account:
+        searched_user = Account.query.filter_by(
+            username=searched_user_username
+        ).first()
+        if not searched_user:
             return {
                 'status': 'error',
                 'message': 'Account not found'
             }, 404
-            
+        
+        # Get 25 lasts videos, to show most infos in front end with most speed
         videos = Video.query.filter_by(
-            owner_id=account.id
+            owner_id=searched_user.id
         ).order_by(
             sqlalchemy.desc(Video.created_at)
         ).limit(
@@ -462,71 +444,37 @@ def get_infos(user, username):
         ).offset(
             0
         ).all()
-
-        liked_videos_ids = [
-            like.video_id for like in user.likes
-        ]
-        followeds_users_ids = [
-            follow.followed_user_id for follow in user.follows
-        ]
-        followed = account.id in followeds_users_ids
         
-        first_videos_list = []
-        
+        latests_video_by_searched_user = []
         for video in videos:
 
-            likes_str = str(len(video.likes))
-            likes_complement = ''
-
-            if len(likes_str) > 9:
-                likes_complement = 'b'
-                likes_str = likes_str[:-9]
-            elif len(likes_str) > 6:
-                likes_complement = 'mi'
-                likes_str = likes_str[:-6]
-            elif len(likes_str) > 3:
-                likes_complement = 'k'
-                likes_str = likes_str[:-3]
-
-            liked = video.id in liked_videos_ids
-
-            first_videos_list.append({
-                'url': f'{request.url_root}/video/{video.name}',
-                'video_data': {
-                    'likes': f'{likes_str}{likes_complement}',
-                    'description': video.description,
-                    'created_at': video.created_at,
-                    'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
-                    'id': video.id,
-                    'name': video.name,
-                    'liked': liked,
-                    'comments': len(video.comments)
-                },
-                'owner': {
-                    'username': video.owner.username,
-                    'created_at': video.owner.created_at,
-                    'followers': video.owner.followers,
-                    'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
-                    'followed': followed,
-                    'id': video.owner.id
-                }
-            })
-            
-
-        user_data = {
+            video_data = get_public_video_data(
+                video=video,
+                user=user,
+                request=request
+            )
+            latests_video_by_searched_user.append(video_data)
+        
+        
+        followed_users_ids = [follow.followed_user_id for follow in user.follows]
+        followed = searched_user.id in followed_users_ids
+        
+        followers = format_number(searched_user.followers)
+        
+        public_user_data = {
             'followed': followed,
-            'username': account.username,
-            'followers': account.followers,
-            'videos': len(account.videos),
-            'image_url': f'{request.url_root}/account/image/{account.image_name}',
-            'id': account.id,
-            'this_account_is_your': account.id == user.id
+            'username': searched_user.username,
+            'followers': followers,
+            'videos': len(searched_user.videos),
+            'image_url': f'{request.url_root}/account/image/{searched_user.image_name}',
+            'id': searched_user.id,
+            'this_account_is_your': searched_user.id == user.id
         }
         
         return {
             'status': 'ok',
-            'userinfos': user_data,
-            'videos': first_videos_list or False
+            'userinfos': public_user_data,
+            'videos': latests_video_by_searched_user or False
         }
             
     except Exception as error:
@@ -544,7 +492,6 @@ def get_followed_accounts(user):
     try: 
         
         followed_accounts = []
-                                            
         for follow in user.follows:
             followed_accounts.append({
                 'username': follow.followed_user.username,
@@ -569,8 +516,7 @@ def search_accounts(user):
     try:
         
         args = dict(request.args)
-        
-        search_terms = args.get('q')
+        search_terms = args.get('s')
         
         if not search_terms:
             return {
@@ -578,29 +524,28 @@ def search_accounts(user):
                 'message': 'Search terms not provided'
             }, 400
             
-        accounts_list = []
-        
         accounts = Account.query.filter(
             Account.username.contains(search_terms)
         ).all()
         
+        results_list = []
         for account in accounts:
-            accounts_list.append({
+            results_list.append({
                 'username': account.username,
                 'videos': len(account.videos),
                 'followers': account.followers,
                 'image_url': f'{request.url_root}/account/image/{account.image_name}'
             })
             
-        if not accounts_list:
+        if not results_list:
             return {
                 'status': 'error',
-                'message': 'Could not find any user with this terms'
+                'message': 'Could not find any user with provided search terms'
             }, 404
         
         return {
             'status': 'ok',
-            'results': accounts_list
+            'results': results_list
         }
         
     except Exception as error:
@@ -616,62 +561,54 @@ def search_accounts(user):
 def change_password():
             
     try: 
-        user_email = request.form.get('email')
         
-        if not user_email:
+        email_from_account_to_change_password = request.form.get('email')
+        
+        if not email_from_account_to_change_password:
             return {
                 'status': 'error',
                 'message': 'Email not provided'
             }, 400
             
-            
-        user_account = Account.query.filter_by(
-            email=user_email
+        account_to_change_password = Account.query.filter_by(
+            email=email_from_account_to_change_password
         ).first()
-        
-        if not user_account:
+        if not account_to_change_password:
             return {
                 'status': 'error',
                 'message': 'Could not find any account with this email.'
             }, 404
-            
-        uuid = f"{uuid4().hex}{uuid4().hex}"
         
+        change_password_uuid = f"{uuid4().hex}{uuid4().hex}"
+        change_password_request = ChangePasswordRequest(
+            uuid=change_password_uuid,
+            user_id=account_to_change_password.id
+        )
+        db.session.add(change_password_request)
+        db.session.commit()
+                
         email = MIMEMultipart()
         email['Subject'] = 'Change Password'
-        
-        email_body = change_password_email.email_body(
-            change_password_page_url=f"{request.url_root}/account/change-password?uuid={uuid}",
+        email_body = change_password_email.body(
+            change_password_page_url= (
+                f"{request.url_root}/account/change-password?uuid={change_password_uuid}"
+            ),
             server_url=request.url_root
         )
-        
         email.attach(
             MIMEText(email_body, 'html')
         )
-
         try:
-
             smtp_server.sendmail(
                 from_addr=SERVER_EMAIL,
-                to_addrs=user_email,
+                to_addrs=email_from_account_to_change_password,
                 msg=email.as_bytes()
             )
-
         except:
-
             return {
                 'status': 'error',
                 'message': 'Error to send change password email'
             }, 400
-            
-            
-        change_password_request = ChangePasswordRequest(
-            uuid=uuid,
-            user_id=user_account.id
-        )
-        
-        db.session.add(change_password_request)
-        db.session.commit()
         
         return {
             'status': 'ok'
@@ -704,7 +641,6 @@ def confirm_change_password():
                 'status': 'error',
                 'message': 'Uuid not provided'
             }, 400
-        
         if not user_email or not new_password:
             return {
                 'status': 'error',
@@ -718,18 +654,16 @@ def confirm_change_password():
         ).filter_by(
             email=user_email
         ).all()
-        
         if not change_password_requests:
             return {
                 'status': 'error',
                 'message': 'There is no password change request for the account using the email or uuid entered.'
             }, 404
         
-        user_account = Account.query.filter_by(
+        account_to_change_password = Account.query.filter_by(
             id=change_password_requests[0].user_id
         ).first()
-        
-        if not user_account:
+        if not account_to_change_password:
             return {
                 'status': 'error',
                 'message': 'Account not found'
@@ -739,12 +673,13 @@ def confirm_change_password():
             new_password.encode(), 
             bcrypt.gensalt()
         )
+        account_to_change_password.password = hashed_new_password
         
-        user_account.password = hashed_new_password
         for change_password_request in change_password_requests:
-            db.session.delete(change_password_request)    
+            db.session.delete(change_password_request)
+            
         db.session.commit()
-        
+    
         return {
             'status': 'ok'
         }
@@ -774,7 +709,7 @@ def update(user):
                     'message': 'Nothing are updated'
                 }, 400
             
-            user_account = Account.query.filter_by(
+            account_to_update = Account.query.filter_by(
                 id=user.id
             ).first()
             
@@ -784,8 +719,7 @@ def update(user):
                 ).first()
                 
                 if account_using_the_same_username:
-                    
-                    if account_using_the_same_username.id == user_account.id:
+                    if account_using_the_same_username.id == account_to_update.id:
                         return {
                             'status': 'error',
                             'message': 'The new username needs to be different from current'
@@ -797,33 +731,29 @@ def update(user):
                         }, 400
                 
                 new_username = new_username.strip()
-                
                 invalid_username = len(
                     new_username
                 ) > 20 or len(
                     new_username
                 ) < 5 or " " in new_username
-                
                 if invalid_username:
                     return {
                         'status': 'error',
                         'mesage': 'Invalid username' 
                     }, 400
-                user_account.username = new_username
+                
+                account_to_update.username = new_username
             
             if remove_profile_file:
-                
-                if user_account.image_name != 'default.jpg':
-                    os.remove(f'./app/database/files/profile_image/{user_account.image_name}')
-                    user_account.image_name = 'default.jpg'
+                if account_to_update.image_name != 'default.jpg':
+                    os.remove(f'./app/database/files/profile_image/{account_to_update.image_name}')
+                    account_to_update.image_name = 'default.jpg'
                     
             elif new_profile_image:
-                
                 allowed_image_mimetypes = [
                     "image/png",
                     "image/jpeg"
                 ]            
-                    
                 if new_profile_image.mimetype not in allowed_image_mimetypes:
 
                     return {
@@ -831,26 +761,26 @@ def update(user):
                         'message': 'Invalid new profile image'
                     }, 400
                     
-                if user_account.image_name != 'default.jpg':
-                    os.remove(f'./app/database/files/profile_image/{user_account.image_name}')
+                if account_to_update.image_name != 'default.jpg':
+                    os.remove(f'./app/database/files/profile_image/{account_to_update.image_name}')
                     
                 new_profile_image_name = f'{uuid4().hex}-{date.today()}.png'
                 new_profile_image.save(
                     f'./app/database/files/profile_image/{new_profile_image_name}'
                 )
                 
-                user_account.image_name = new_profile_image_name
+                account_to_update.image_name = new_profile_image_name
             
             db.session.commit()
             
-            new_user_infos_to_send = {
-                'username': user_account.username,
-                'image_url': f'{request.url_root}/account/image/{user_account.image_name}'
+            new_public_infos_to_send = {
+                'username': account_to_update.username,
+                'image_url': f'{request.url_root}/account/image/{account_to_update.image_name}'
             }
             
             return {
                 'status': 'ok',
-                'new_userdata': new_user_infos_to_send
+                'new_userdata': new_public_infos_to_send
             }
             
         except Exception as error:
@@ -863,10 +793,13 @@ def update(user):
             }, 500
 
 @accounts_router.route('/account/image/<path:filename>', methods=['GET'])
-def read_profile_image(filename):
+def get_profile_image(filename):
 
     try:
         return send_from_directory('database/files/profile_image/', filename)
     except:
-
         return send_from_directory('database/files/profile_image/', 'default.jpg')
+
+
+# To do: Create new table in database to confirm account process and 
+# remove confirm_uuid row in Account table

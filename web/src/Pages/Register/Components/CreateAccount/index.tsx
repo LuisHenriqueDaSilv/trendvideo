@@ -18,7 +18,9 @@ require('dotenv/config')
 
 export function CreateAccount(){
 
-    const defaultProfileImageUrl = `${process.env.REACT_APP_BACKEND_URL}/account/image/default.jpg`
+    const defaultProfileImageUrl = (
+        `${process.env.REACT_APP_BACKEND_URL}/account/image/default.jpg`
+    )
 
     const history = useHistory()
 
@@ -82,7 +84,10 @@ export function CreateAccount(){
             data.append('profile_image', userImage)
         }
 
-        const response:any = await api.post('/account/create', data).catch((error) => {
+        const response:any = await api.post(
+            '/account/create', 
+            data
+        ).catch((error) => {
             if(error.response){
                 showAlert({
                     message: error.response.data.message,
@@ -94,7 +99,6 @@ export function CreateAccount(){
                     title: 'error'
                 })
             }
-            
             return null
         })
 
@@ -181,7 +185,9 @@ export function CreateAccount(){
                 <section>
                     <label>Username</label>
                     <input 
-                        onChange={(event:any) => {setUsername(event.target.value)}}
+                        onChange={
+                            (event:any) => {setUsername(event.target.value)}
+                        }
                         type="text"
                     />
                 </section>

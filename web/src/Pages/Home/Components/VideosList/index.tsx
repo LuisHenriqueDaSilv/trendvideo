@@ -27,7 +27,7 @@ export function VideosList(){
     const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true)
     const [isLoadingVideos, setIsLoadingVideos] = useState<boolean>(true)
 
-    const getMoreVideos = async (start:number) => {
+    async function getMoreVideos(start:number) {
 
         setIsLoadingVideos(true)
 
@@ -71,14 +71,13 @@ export function VideosList(){
 
     }
 
-    const goToVideosPage = (video:VideoType) => {
+    function goToVideosPage (video:VideoType){
 
         const state: VideoPageProps = {
             sortBy,
             videos,
             currentVideo: video,
         }
-
 
         history.push('/videos', state)
     }

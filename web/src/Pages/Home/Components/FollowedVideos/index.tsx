@@ -41,7 +41,6 @@ export function FollowedVideos(){
         setIsLoadingVideos(true)
 
         const response = await getFollowedsVideo({start: videos.length})
-
         if(response.error){
 
             if(response.errorMessage === 'Invalid authorization token') {
@@ -63,10 +62,9 @@ export function FollowedVideos(){
 
         setVideos([...videos, ...response])
         setIsLoadingVideos(false)
-
     }
 
-    async function handleGoToVideosPage(video:VideoType){
+    function handleGoToVideosPage(video:VideoType){
         const state: VideoPageProps = {
             videos,
             currentVideo: video,
@@ -77,7 +75,7 @@ export function FollowedVideos(){
 
     async function handleLikeVideo(video:VideoType){
 
-         const response = await likeVideo(video) as any
+        const response = await likeVideo(video) as any
 
         if(response.error){
 
@@ -86,20 +84,16 @@ export function FollowedVideos(){
                     message: 'Probably this video was deleted',
                     title: 'error'
                 })
-
             }else if(response.errorMessage === 'Invalid authorization token'){
                 logout()
                 history.push('/')
-
             }else {
                 showAlert({
                     message: response.errorMessage,
                     title: 'error'
                 })
             }
-
             return
-            
         }
 
         const newVideosData = [...videos]
@@ -109,36 +103,27 @@ export function FollowedVideos(){
             const likes = Number(
                 newVideosData[likedVideoIndex].video_data.likes
             )
-
             if(!Number.isNaN(likes)){
                 newVideosData[
                     likedVideoIndex
                 ].video_data.likes = (likes + 1).toString()
             }
-
             newVideosData[likedVideoIndex].video_data.liked = true
-
         }else {
             const likes = Number(
                 newVideosData[likedVideoIndex].video_data.likes
             )
-
             if(!Number.isNaN(likes)){
                 newVideosData[
                     likedVideoIndex
                 ].video_data.likes = (likes - 1).toString()
             }
-
             newVideosData[likedVideoIndex].video_data.liked = false
-            
         }
-
         setVideos(newVideosData)
-
     }
     
     return (
-
         <InfiniteScroll
                 className={styles.followedVideosContainer}
 
@@ -187,7 +172,9 @@ export function FollowedVideos(){
                             ): (
                                 <img
                                     src={video.video_data.thumbnail_url}
-                                    onClick={() => {setPlayingVideoIndex(index)}}
+                                    onClick={
+                                        () => {setPlayingVideoIndex(index)}
+                                    }
                                     alt="Video thumbnail"
                                 />
                             )
@@ -206,7 +193,9 @@ export function FollowedVideos(){
                                 onClick={() => {setIsMuteVideos(!isMuteVideos)}}
                             >
                                 <img
-                                    src={isMuteVideos?"/icons/Mute.png":"/icons/Unmute.png"}
+                                    src={
+                                        isMuteVideos?"/icons/Mute.png":"/icons/Unmute.png"
+                                    }
                                     alt={isMuteVideos?"Unmute":"Mute"}
                                 />
                             </button>

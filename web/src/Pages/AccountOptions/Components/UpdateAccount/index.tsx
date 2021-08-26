@@ -40,7 +40,6 @@ export function UpdateAccount(){
         if (!files) {
             return;
         }
-
         if(!files[0]){
             return
         }
@@ -51,7 +50,6 @@ export function UpdateAccount(){
             "image/png", 
             "image/jpeg" 
         ]
-
         if(!allowedsImageTypes.includes(file.type)){
             showAlert({
                 title: 'error',
@@ -66,7 +64,6 @@ export function UpdateAccount(){
 
         setNewProfileImage(file)
         setProfileImageUrl(URL.createObjectURL(file))
-
     }
 
     function handleRemoveProfileImage(){
@@ -86,11 +83,9 @@ export function UpdateAccount(){
         enableLoading()
         
         const token = cookies.token
-
         const headers = {
             authorization: `Bearer ${token}`
         }
-
         const data = new FormData()
 
         if(newUsername && newUsername !== currentUsername){
@@ -112,7 +107,6 @@ export function UpdateAccount(){
             if(error.response){
 
                 const errorMessage = error.response.data.message
-
                 if(errorMessage === 'Invalid authorization token'){
                     logout()
                     history.push('/')
@@ -122,14 +116,12 @@ export function UpdateAccount(){
                         message: errorMessage
                     })
                 }
-
             }else {
                 showAlert({
                     title: 'error',
                     message: 'Something went wrong in update account process'
                 })
             }
-            
             return
         })
 
@@ -147,7 +139,6 @@ export function UpdateAccount(){
         })
 
         disableLoading()
-
     }
 
     const {
@@ -193,7 +184,9 @@ export function UpdateAccount(){
                 <input 
                     type="text"
                     value={newUsername}
-                    onChange={(event) => {setNewUsername(event.target.value)}}
+                    onChange={
+                        (event) => {setNewUsername(event.target.value)}
+                    }
                 />
             </div>
 

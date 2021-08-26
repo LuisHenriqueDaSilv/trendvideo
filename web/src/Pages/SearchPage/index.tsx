@@ -54,7 +54,7 @@ export function SearchPage(){
         }
 
         const response  = await api.get(
-            `/accounts/search?q=${searchTerms}`,
+            `/accounts/search?s=${searchTerms}`,
             {headers}    
         ).catch((error) => {
 

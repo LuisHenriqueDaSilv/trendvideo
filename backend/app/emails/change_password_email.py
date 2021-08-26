@@ -1,4 +1,4 @@
-def email_body(change_password_page_url, server_url):
+def body(change_password_page_url, server_url):
     return f"""
         <div style="
             text-align: center;

@@ -22,12 +22,11 @@ export function AccountOptions(){
         setUsername(username)
     }, [])
 
-    const onClickShowMenu = () => {
-        
+    function onClickShowMenu(){
         setIsOpeningMenu(!isOpeningMenu)
     }
 
-    const handleLogout = () => {
+    function handleLogout(){
         logout()
         history.push(`/`)
     }

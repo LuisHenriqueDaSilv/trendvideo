@@ -53,7 +53,10 @@ export function Login(){
         data.append('email', email)
         data.append('password', password)
 
-        const response = await api.post('/account/login', data).catch((error) => {
+        const response = await api.post(
+            '/account/login', 
+            data
+        ).catch((error) => {
             if(error.response){
                 showAlert({
                     message: error.response.data.message,

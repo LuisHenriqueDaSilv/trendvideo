@@ -42,24 +42,22 @@ export function AccountInfos(){
 
     const [userdata, setUserdata] = useState<userdataInterface | null>(null)
     const [videos, setVideos] = useState<VideoType[]>([])
-    const [accountNotFound, setAccountNotFound] = useState<boolean>(false)
+    const [wasFoundAccount, setWasFoundAccount] = useState<boolean>(false)
     const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true)
     const [isLoadingMoreVideos, setIsLoadingMoreVideos] = useState<boolean>(false)
 
     useEffect(() => {
-
         setUserdata(null)
-        setAccountNotFound(false)
+        setWasFoundAccount(true)
 
         getUserInfos()
 
         // eslint-disable-next-line
     }, [username])
 
-    const getUserInfos = async () => {
+    async function getUserInfos(){
 
         const token = cookies.token
-
         const headers = {
             authorization: `Bearer ${token}`
         }
@@ -73,28 +71,24 @@ export function AccountInfos(){
 
                 const errorMessage = error.response.data.message
 
-                if(errorMessage === 'Invalid authorization token') {
+                if(errorMessage === 'Invalid authorization token'){
                     logout()
                     history.push('/')
-
-                }else if(errorMessage === 'Account not found') {
-                    setAccountNotFound(true)
+                }else if(errorMessage === 'Account not found'){
+                    setWasFoundAccount(false)
                 }else{
                     showAlert({
                         title: 'error',
                         message: errorMessage
                     })
                 }
-
             }else {
                 showAlert({
                     title: 'error',
                     message: 'Something went wrong in get account infos'
                 })
             }
-
             return
-
         })
 
         if(!response){
@@ -106,7 +100,7 @@ export function AccountInfos(){
 
     }
 
-    const getMoreVideos = async () => {
+    async function getMoreVideos(){
 
         setIsLoadingMoreVideos(true)
         
@@ -116,14 +110,11 @@ export function AccountInfos(){
         }) as any
 
         if(response.error){
-
             if(response.errorMessage === 'Invalid authorization token') {
                 logout()
                 history.push('/')
             }else if(response.errorMessage === 'Could not find any video'){
-
                 return setHasMoreVideos(false)
-
             } else {
                 showAlert({
                     message: response.errorMessage,
@@ -138,27 +129,23 @@ export function AccountInfos(){
         setIsLoadingMoreVideos(false)
     }
 
-    const goToVideosPage = (video:VideoType) => {
-
+    function goToVideosPage(video:VideoType){
         const state: VideoPageProps = {
             videos,
             currentVideo: video,
         }
 
-
         history.push(`/videos?user=${username}`, state)
     }
 
-    const handleFollowAccount = async () => {
+    async function handleFollowAccount(){
 
         if(!userdata){
             return
         }
 
         const response = await followAccount(userdata.id)
-
         if(response.error){
-
             if(response.errorMessage === 'Invalid authorization token') {
                 logout()
                 history.push('/')
@@ -174,13 +161,11 @@ export function AccountInfos(){
         const newUserData = {
             ...userdata
         }
-
         newUserData.followed = response.message === 'Follow'
-
         setUserdata(newUserData)
     }
 
-    if(accountNotFound){
+    if(!wasFoundAccount){
         return(
             <div className={styles.container}>
                 <h1 className={styles.errorText}>User not found</h1>
@@ -210,6 +195,7 @@ export function AccountInfos(){
                     src={userdata.image_url}
                     alt={userdata.username}
                 />
+
                 <div className={styles.infosContainer}>
                     <h1>
                         {userdata.username}
@@ -227,6 +213,7 @@ export function AccountInfos(){
                         }
                     </button>
                 </div>
+
                 {
                     userdata.this_account_is_your&& (
                         <Link
@@ -242,12 +229,13 @@ export function AccountInfos(){
             <div className={styles.videosArea}>
                 <header>
                     
-                    <h1>{ videos? 'Videos':"This account don't have videos"}</h1>
+                    <h1>
+                        {videos? 'Videos':"This account don't have videos"}
+                    </h1>
                 </header>
 
                 <InfiniteScroll 
                     className={styles.videosContainer}
-
                     dataLength={videos.length}
                     next={() => {getMoreVideos()}}
                     hasMore={hasMoreVideos}
@@ -285,11 +273,21 @@ export function AccountInfos(){
 
                 {
                     hasMoreVideos? (
-                        isLoadingMoreVideos&& <h1 className={styles.scrollEndMessage}>Loading more videos</h1>
+                        isLoadingMoreVideos&& (
+                        <h1 
+                            className={styles.scrollEndMessage}
+                        >
+                            Loading more videos
+                        </h1>)
                     ):(
-                        <h1 className={styles.scrollEndMessage}>This account don't have more videos</h1>
+                        <h1 
+                            className={styles.scrollEndMessage}
+                        >
+                            This account don't have more videos
+                        </h1>
                     )
                 }
+
             </div>
 
         </div>

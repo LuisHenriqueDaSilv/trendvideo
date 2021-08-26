@@ -22,43 +22,42 @@ def create(user):
     
     try: 
         
-        video_id = request.form.get('video_id')
-        content = request.form.get('content')
+        if user.status == 'awaiting confirmation':
+            return {
+                'status': 'error',
+                'message': f'To make a comment you need confirm create account first. Check your email'
+            }, 401
         
-        if not video_id:
+        video_to_comment_id = request.form.get('video_id')
+        comment_content = request.form.get('content')
+        
+        if not video_to_comment_id:
             return {
                 'status': 'error',
                 'message': 'Video id is not provided'
             }, 400
             
         try:
-            video_id = int(video_id)
+            video_to_comment_id = int(video_to_comment_id)
         except:
             return {
                 'status': 'error',
                 'message': 'Invalid video id'
             }, 400
             
-            
-        if not content:
+        if not comment_content:
             return {
                 'status': 'error',
                 'message': 'Comment content is not provided'
             }, 400
             
-        if len(content) > 500:
+        if len(comment_content) > 500:
             return {
                 'status': 'error',
                 'message': 'Invalid comment content length'
             }, 400
             
-        if user.status != 'OK':
-            return {
-                'status': 'error',
-                'message': f'To make a comment you need to confirm your email first'
-            }, 401
-            
-        video = Video.query.filter_by(id=video_id).first()
+        video = Video.query.filter_by(id=video_to_comment_id).first()
         
         if not video:
             return {
@@ -68,9 +67,9 @@ def create(user):
             
 
         comment = Comment(
-            content=str(content),
+            content=str(comment_content),
             owner_id=user.id,
-            video_id=video_id
+            video_id=video_to_comment_id
         )
                     
         db.session.add(comment)
@@ -107,7 +106,6 @@ def index(user):
     try:
         
         args = dict(request.args)
-
         video_id = args.get('video_id')
         start = args.get('start') or 0  # default 0
         
@@ -182,50 +180,50 @@ def delete(user):
     
     try:
         
-        comment_id = request.form.get('comment_id')
+        comment_to_delete_id = request.form.get('comment_id')
         
-        if not comment_id:
+        if not comment_to_delete_id:
             return {
                 'status': 'error',
                 'message': 'Comment id is not provided'
             }, 400
             
         try: 
-            comment_id = int(comment_id)
+            comment_to_delete_id = int(comment_to_delete_id)
         except:
             return {
                 'status': 'error',
                 'message': 'Comment id is invalid'
             }, 400
         
-        comment = Comment.query.filter_by(
-            id=comment_id
+        comment_to_delete = Comment.query.filter_by(
+            id=comment_to_delete_id
         ).first()
         
-        if not comment:
+        if not comment_to_delete:
             return {
                 'status': 'error',
                 'message': 'Comment not found'
             }, 404
             
-        if comment.owner_id != user.id:
+        if comment_to_delete.owner_id != user.id:
             return {
                 'status': 'error',
                 'message': 'This comment is not yours'
             }, 401
             
         comment_data = {
-            'content': comment.content,
-            'id': comment.id,
-            'comment_is_your': comment.owner.id == user.id,
+            'content': comment_to_delete.content,
+            'id': comment_to_delete.id,
+            'comment_is_your': comment_to_delete.owner.id == user.id,
             'owner': {
-                'username': comment.owner.username,
-                'id': comment.owner.id,
-                'image_url': f'{request.url_root}/account/image/{comment.owner.image_name}'
+                'username': comment_to_delete.owner.username,
+                'id': comment_to_delete.owner.id,
+                'image_url': f'{request.url_root}/account/image/{comment_to_delete.owner.image_name}'
             }
         }
         
-        db.session.delete(comment)
+        db.session.delete(comment_to_delete)
         db.session.commit()
         
         return {

@@ -41,12 +41,9 @@ export function MyVideos(){
         if(isLoadingMoreVideos){
             return
         }
-
         setIsLoadingMoreVideos(true)
 
         const username = localStorage.getItem('username')
-
-
         if(!username){
             return
         }
@@ -62,9 +59,7 @@ export function MyVideos(){
                 logout()
                 history.push('/')
             }else if(response.errorMessage === 'Could not find any video'){
-
                 return setHasMoreVideos(false)
-
             } else {
                 showAlert({
                     message: response.errorMessage,
@@ -84,7 +79,6 @@ export function MyVideos(){
         enableLoading()
 
         const token = cookies.token
-
         const headers = {
             authorization: `Bearer ${token}`
         }
@@ -104,7 +98,6 @@ export function MyVideos(){
             if(error.response){
 
                 const errorMessage = error.response.data.message
-
                 if(errorMessage === 'Invalid authorization token') {
                     logout()
                     history.push('/')
@@ -114,14 +107,12 @@ export function MyVideos(){
                         message: errorMessage
                     })
                 }
-
             }else {
                 showAlert({
                     title: 'error',
                     message: 'Something went wrong in delete video process'
                 })
             }
-
             return
         })
 
@@ -136,13 +127,10 @@ export function MyVideos(){
         })
 
         const deletedVideoIndex = videosIds.indexOf(videoToDelete.video_data.id)
-
         newVideosData.splice(deletedVideoIndex, 1)
-
         setVideos(newVideosData)
 
         disableLoading()
-
     } 
 
     return (
@@ -170,10 +158,12 @@ export function MyVideos(){
                         <th>Comments</th>
                         <th>Delete</th>
                     </tr>
+
                     {
                         videos.map((video) => {
                             return (
                                 <tr className={styles.videoContainer}>
+
                                     <td>
                                         <div 
                                             className={styles.thumbnailImage}
@@ -182,24 +172,39 @@ export function MyVideos(){
                                             }}
                                         />
                                     </td>
+
                                     <td>
                                         {video.video_data.likes}
                                     </td>
-                                    <td className={styles.descriptionArea}>bb{video.video_data.description}</td>
+
+                                    <td 
+                                        className={styles.descriptionArea}
+                                    >
+                                        {video.video_data.description}
+                                    </td>
+
                                     <td>{video.video_data.comments}</td>
+
                                     <td>
                                         <button 
-                                            onClick={() => {handleDeleteVideo(video)}}
+                                            onClick={
+                                                () => {handleDeleteVideo(video)}
+                                            }
                                             className={styles.deleteButton}
                                         >
-                                            <img alt="Delete" src="/icons/DeleteIcon.png"/>
+                                            <img 
+                                                alt="Delete" 
+                                                src="/icons/DeleteIcon.png"
+                                            />
                                             Delete
                                         </button>
                                     </td>
+
                                 </tr>
                             )
                         })
                     }
+
                 </InfiniteScroll>
             </table>
             {

@@ -24,11 +24,11 @@ export function LoadingContextProvider({children}: contextProviderProps){
         setShowLoadingComponent
     ] = useState<boolean>(false)
 
-    const enableLoading = () => {
+    function enableLoading(){
         setShowLoadingComponent(true)
     }
 
-    const disableLoading = () => {
+    function disableLoading(){
         setShowLoadingComponent(false)
     }
 

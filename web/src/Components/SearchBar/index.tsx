@@ -14,10 +14,10 @@ export function SearchBar({value}:SearchBarProps){
 
     const [searchTerms, setSearchTerms] = useState<string>(value || '')
 
-    const handleSearch = (event:FormEvent) => {
-        event.preventDefault()
+    function handleSearch(event:FormEvent){
 
-        history.push(`/search?q=${searchTerms}`)
+        event.preventDefault()
+        history.push(`/search?s=${searchTerms}`)
     }
 
     return (
@@ -30,7 +30,10 @@ export function SearchBar({value}:SearchBarProps){
                 onChange={(event) => {setSearchTerms(event.target.value)}}
             />
             <button>
-                <img alt="search icon" src="/icons/Search.png"/>
+                <img 
+                    alt="search icon" 
+                    src="/icons/Search.png"
+                />
             </button>
         </form>
     )

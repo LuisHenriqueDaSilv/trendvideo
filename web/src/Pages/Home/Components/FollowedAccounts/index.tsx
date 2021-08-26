@@ -32,7 +32,7 @@ export function FollowedAccounts(){
         // eslint-disable-next-line
     }, [])
 
-    const getFollowedAccounts = async () => {
+    async function getFollowedAccounts(){
 
         const token = cookies.token
 
@@ -45,7 +45,6 @@ export function FollowedAccounts(){
         ).catch((error) => {
 
             if(error.response){
-
                 const errorMessage =error.response.data.message
                 if(errorMessage === 'Invalid authorization token'){
                     logout()

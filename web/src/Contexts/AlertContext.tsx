@@ -51,23 +51,18 @@ export function AlertContextProvider({children}:contextProviderProps){
     ] = useState<number>(0)
 
     useEffect(() => {
-
         if(isShowingAlert && timeToCloseAlert < alertDuration){
-
             countdownTimeoutRef.current = window.setTimeout(() => {
                 setTimeToCloseAlert(timeToCloseAlert + 0.1)
             }, 100)
-
         }else if(isShowingAlert) {
-
             resetAlertStates()
         }
 
     }, [timeToCloseAlert, isShowingAlert])
 
 
-    const resetAlertStates = () => {
-
+    function resetAlertStates(){
         setIsShowingAlert(false)
         setMessage('')
         setTimeToCloseAlert(0)
@@ -75,24 +70,23 @@ export function AlertContextProvider({children}:contextProviderProps){
 
     }
 
-    const showAlert = ({title, message}: showAlertParams) => {
+    function showAlert({title, message}: showAlertParams){
         resetAlertStates()
-        const audio = new Audio('/alert.mp3')
-        audio.volume = 0.2
-        audio.play()
+        const notificationSound = new Audio('/alert.mp3')
+        notificationSound.volume = 0.2
+        notificationSound.play()
 
         setMessage(message)
         setAlertType(title)
         setIsShowingAlert(true)
     }
 
-    const closeAlert = () => {
+    function closeAlert() {
         if(isShowingAlert){
             resetAlertStates()
         }
 
     }
-
     
     return (
         <AlertContext.Provider 

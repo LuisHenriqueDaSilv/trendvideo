@@ -34,13 +34,14 @@ export function ForgotPasswordPage(){
         enableLoading()
 
         const data = new FormData()
-
         data.append('email', userEmail)
 
-        const response = await api.post('/account/update/password', data).catch((error) => {
+        const response = await api.post(
+            '/account/update/password',
+            data
+        ).catch((error) => {
             if(error.response){
                 const errorMessage = error.response.data.message
-
                 showAlert({
                     title: 'error',
                     message: errorMessage
@@ -83,13 +84,16 @@ export function ForgotPasswordPage(){
                             Email used in create account process
                         </label>
                         <input 
-                            onChange={(event) => {setUserEmail(event.target.value)}}
+                            onChange={
+                                (event) => {setUserEmail(event.target.value)}
+                            }
                             type="text"
                         />
                     </div>
 
                     <p>
-                        When sending a password change request you will receive an email to proceed with changing your password
+                        When sending a password change request you will receive
+                        an email to proceed with changing your password
                     </p>
                     <button type="submit">
                         Send change password request

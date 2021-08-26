@@ -34,8 +34,15 @@ export function AccountOptions(){
             </div>
         
             <div className={styles.router}>
-                <Route path="/myaccount" exact component={UpdateAccount}/>
-                <Route path="/myaccount/videos" component={MyVideos}/>
+                <Route 
+                    path="/myaccount" 
+                    exact 
+                    component={UpdateAccount}
+                />
+                <Route 
+                    path="/myaccount/videos" 
+                    component={MyVideos}
+                />
             </div>
         </div>
     )

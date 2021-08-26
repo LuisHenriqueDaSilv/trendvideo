@@ -7,11 +7,16 @@ import math
 import os
 import json
 
+from app import app, db
+
 # Middlewares
 from ..middlewares.verify_token import verify_token
 
 #Models
 from ..database.models import Video, Like, Comment, Account
+
+#Utils
+from ..utils import get_public_video_data
 
 videos_router = Blueprint(
     'video_crud',
@@ -20,22 +25,22 @@ videos_router = Blueprint(
 
 @videos_router.route('/video/create', methods=['POST'])
 @verify_token
-def create(user):
+def create_video(user):
 
     try:
 
-        if user.status != 'OK':
+        if user.status == 'awaiting confirmation':
             return {
                 'status': 'error',
                 'message': f'To post one video you need confirm your email first'
             }, 400
 
-        description = request.form.get('description')
-
-        if not description:
-            description = ''
-
-        if len(description) > 200:
+        video_description = request.form.get('description')
+        
+        if not video_description:
+            video_description = ''
+            
+        if len(video_description) > 200:
             return {
                 'status': 'error',
                 'message': 'Invalid description length'
@@ -54,7 +59,6 @@ def create(user):
             'video/ogg', 
             'video/mp4'
         ]
-
         if video.mimetype not in allowed_video_mimetypes:
             return {
                 'status': 'error',
@@ -79,8 +83,8 @@ def create(user):
                 'message': 'video length too long'
             }, 400
 
-        video_thumbnail = request.files.get('thumbnail')
 
+        video_thumbnail = request.files.get('thumbnail')
         thumbnail_name = f'{uuid4().hex}-{date.today()}.png'
 
         if video_thumbnail:
@@ -88,7 +92,6 @@ def create(user):
                 "image/png", 
                 "image/jpeg"
             ]
-            
             if video_thumbnail.mimetype not in allowed_thumbnail_mimetypes:
                 return {
                     'status': 'error',
@@ -99,13 +102,11 @@ def create(user):
                 video_thumbnail.save(
                     f'./app/database/files/thumbnails/{thumbnail_name}'
                 )
-
         else:
             video_cv2.set(
                 1,
                 video_frames/3
             ) # 1 Frame in 1 third of the video
-            
             ret, frame = video_cv2.read()
             cv2.imwrite(
                 f'./app/database/files/thumbnails/{thumbnail_name}',
@@ -115,7 +116,7 @@ def create(user):
         video_to_save = Video(
             name=video_name,
             owner_id=user.id,
-            description=description,
+            description=video_description,
             thumbnail=thumbnail_name
         )
 
@@ -135,53 +136,54 @@ def create(user):
 
 @videos_router.route('/video/delete', methods=['DELETE'])
 @verify_token
-def delete(user):
+def delete_video(user):
 
     try:
 
-        video_id = request.form.get('video_id')
+        video_to_delete_id = request.form.get('video_id')
         
-        if not video_id:
+        if not video_to_delete_id:
             return {
                 'status': 'error',
                 'message': 'Video id not provided'
             } 
 
         try:
-            video_id = int(video_id)
+            video_to_delete_id = int(video_to_delete_id)
         except:
             return {
                 'status': 'error',
                 'message': 'Invalid video id'
             }, 400
 
-        video = Video.query.filter_by(
-            id=video_id
-        ).first()
 
-        if not video:
+        video_to_delete = Video.query.filter_by(
+            id=video_to_delete_id
+        ).first()
+        if not video_to_delete:
             return {
                 'status': 'error',
                 'message': 'Video not found'
             }, 400
 
-        if video.owner_id == user.id:
-            
-            Comment.query.filter_by(
-                video_id=video_id
-            ).delete()
-            
-            db.session.delete(video)
-            db.session.commit()
 
-            os.remove(f'./app/database/files/videos/{video.name}')
-
-            return {'status': 'ok'}
-        else:
+        if video_to_delete_id.owner_id != user.id:
             return {
                 'status': 'error',
                 'message': 'this video is not yours'
             }, 401
+
+            
+        Comment.query.filter_by(
+            video_id=video_to_delete_id
+        ).delete()
+        
+        db.session.delete(video_to_delete)
+        db.session.commit()
+        os.remove(f'./app/database/files/videos/{video_to_delete.name}')
+
+        return {'status': 'ok'}
+
 
     except Exception as error:
 
@@ -194,7 +196,7 @@ def delete(user):
 
 @videos_router.route('/videos', methods=['GET'])
 @verify_token
-def get_videos_list(user):
+def get_videos(user):
 
     try:
 
@@ -212,7 +214,6 @@ def get_videos_list(user):
             }, 400
 
         if order_by == 'oldest':
-
             videos = Video.query.order_by(
                 Video.created_at
             ).limit(
@@ -222,18 +223,15 @@ def get_videos_list(user):
             ).all()
 
         elif order_by == 'most_liked':
-            
             videos = Video.query.all()
-                            
+            
             def sort_by_key(video):
                 return len(video.likes)
             
             videos.sort(key=sort_by_key, reverse=True)
-            
             videos = videos[start:start+25:1]
 
         else:
-
             videos = Video.query.order_by(
                 sqlalchemy.desc(Video.created_at)
             ).limit(
@@ -242,56 +240,15 @@ def get_videos_list(user):
                 start
             ).all()
 
-        followeds_users_ids = [
-            follow.followed_user_id for follow in user.follows
-        ]
-        
-        liked_videos_ids = [
-            like.video_id for like in user.likes
-        ]
 
         videos_list = []
-
         for video in videos:
-
-            likes_str = str(len(video.likes))
-            likes_complement = ''
-
-            if len(likes_str) > 9:
-                likes_complement = 'b'
-                likes_str = likes_str[:-9]
-            elif len(likes_str) > 6:
-                likes_complement = 'mi'
-                likes_str = likes_str[:-6]
-            elif len(likes_str) > 3:
-                likes_complement = 'k'
-                likes_str = likes_str[:-3]
-
-            liked = video.id in liked_videos_ids
-
-            is_following_video_owner = video.owner.id in followeds_users_ids
-
-            videos_list.append({
-                'url': f'{request.url_root}/video/{video.name}',
-                'video_data': {
-                    'likes': f'{likes_str}{likes_complement}',
-                    'description': video.description,
-                    'created_at': video.created_at,
-                    'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
-                    'id': video.id,
-                    'name': video.name,
-                    'liked': liked,
-                    'comments': len(video.comments)
-                },
-                'owner': {
-                    'username': video.owner.username,
-                    'created_at': video.owner.created_at,
-                    'followers': video.owner.followers,
-                    'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
-                    'followed': is_following_video_owner,
-                    'id': video.owner.id
-                }
-            })
+            video_data = get_public_video_data(
+                video=video,
+                user=user,
+                request=request
+            )
+            videos_list.append(video_data)
 
         if len(videos_list) < 1:
             return {
@@ -312,16 +269,15 @@ def get_videos_list(user):
 
 @videos_router.route('/videos/followeds', methods=['GET'])
 @verify_token
-def get_from_followeds(user):
+def get_video_by_followeds_user(user):
     
     try:
         
         args = dict(request.args)
-
-        start = args.get('start') or 0  # default 0
+        start_from = args.get('start') or 0  # default 0
         
         try: 
-            pass
+            start_from = int(start_from)
         except:
             return {
                 'status': 'error',
@@ -335,54 +291,20 @@ def get_from_followeds(user):
         ).limit(
             25
         ).offset(
-            start
+            start_from
         ).all()
         
         
-        liked_videos_ids = [
-            like.video_id for like in user.likes
-        ]
-        
         videos_list = []
-        
         for video in videos:
-
-            likes_str = str(len(video.likes))
-            likes_complement = ''
-
-            if len(likes_str) > 9:
-                likes_complement = 'b'
-                likes_str = likes_str[:-9]
-            elif len(likes_str) > 6:
-                likes_complement = 'mi'
-                likes_str = likes_str[:-6]
-            elif len(likes_str) > 3:
-                likes_complement = 'k'
-                likes_str = likes_str[:-3]
-
-            liked = video.id in liked_videos_ids
-
-            videos_list.append({
-                'url': f'{request.url_root}/video/{video.name}',
-                'video_data': {
-                    'likes': f'{likes_str}{likes_complement}',
-                    'description': video.description,
-                    'created_at': video.created_at,
-                    'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
-                    'id': video.id,
-                    'name': video.name,
-                    'liked': liked,
-                    'comments': len(video.comments)
-                },
-                'owner': {
-                    'username': video.owner.username,
-                    'created_at': video.owner.created_at,
-                    'followers': video.owner.followers,
-                    'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
-                    'followed': True,
-                    'id': video.owner.id
-                }
-            })
+            
+            video_data = get_public_video_data(
+                video=video,
+                request=request,
+                user=user
+            ) 
+            
+            videos_list.append(video_data)
         
         if not videos_list:
             return {
@@ -408,35 +330,33 @@ def like(user):
 
     try:
         
-        if user.status != 'OK':
+        if user.status == 'awaiting confirmation':
             return {
                 'status': 'error',
                 'message': f'To like one video you need to confirm your email first.'
             }, 400
 
-        video_id = request.form.get('videoId')
-
-        if not video_id:
+        video_to_like_id = request.form.get('videoId')
+        if not video_to_like_id:
             return {
                 'status': 'error',
                 'message': 'Video id not provided'
             }, 400
 
-        video = Video.query.filter_by(id=video_id).first()
+        video_to_like = Video.query.filter_by(id=video_to_like_id).first()
         
-        if not video:
+        if not video_to_like:
             return {
                 'status': 'error',
                 'message': 'Video not found'
             }, 404
 
-        like = Like.query.filter_by(
-            video_id=video_id, user_id=user.id
+        existing_like = Like.query.filter_by(
+            video_id=video_to_like_id, user_id=user.id
         ).first()
 
-        if like:
-
-            db.session.delete(like)
+        if existing_like:
+            db.session.delete(existing_like)
             db.session.commit()
 
             return {
@@ -444,10 +364,8 @@ def like(user):
                 'message': 'unlike'
             }
         else:
-            
-
             like = Like(
-                video_id=video_id,
+                video_id=video_to_like_id,
                 user_id=user.id
             )
             db.session.add(like)
@@ -475,14 +393,14 @@ def get_from_username(user, username):
     
         args = dict(request.args)
 
-        start = args.get('start') or 0  # default 0
+        start_from = args.get('start') or 0  # default 0
         
         try: 
-            start = int(start)
+            start_from = int(start_from)
         except:
             return {
                 'status': 'error',
-                'message': 'Start param not is a number'
+                'message': 'Start from param not is a number'
             }, 400
         
         if not username:
@@ -506,59 +424,18 @@ def get_from_username(user, username):
         ).limit(
             25
         ).offset(
-            start
+            start_from
         ).all()
         
-        followeds_users_ids = [
-            follow.followed_user_id for follow in user.follows
-        ]
-        liked_videos_ids = [
-            like.video_id for like in user.likes
-        ]
-        
         videos_list = []
-        
         for video in videos:
-
-            likes_str = str(len(video.likes))
-            likes_complement = ''
-
-            if len(likes_str) > 9:
-                likes_complement = 'b'
-                likes_str = likes_str[:-9]
-            elif len(likes_str) > 6:
-                likes_complement = 'mi'
-                likes_str = likes_str[:-6]
-            elif len(likes_str) > 3:
-                likes_complement = 'k'
-                likes_str = likes_str[:-3]
-
-            liked = video.id in liked_videos_ids
-
-            is_following_video_owner = video.owner.id in followeds_users_ids
-
-            videos_list.append({
-                'url': f'{request.url_root}/video/{video.name}',
-                'video_data': {
-                    'likes': f'{likes_str}{likes_complement}',
-                    'description': video.description,
-                    'created_at': video.created_at,
-                    'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
-                    'id': video.id,
-                    'name': video.name,
-                    'liked': liked,
-                    'comments': len(video.comments)
-                    
-                },
-                'owner': {
-                    'username': video.owner.username,
-                    'created_at': video.owner.created_at,
-                    'followers': video.owner.followers,
-                    'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
-                    'followed': is_following_video_owner,
-                    'id': video.owner.id
-                }
-            })
+            
+            video_data = get_public_video_data(
+                video=video,
+                request=request,
+                user=user
+            )
+            videos_list.append(video_data)
 
         if len(videos_list) < 1:
             return {
@@ -580,7 +457,6 @@ def get_from_username(user, username):
 
 @videos_router.route('/video/<path:filename>', methods=['GET'])
 def read(filename):
-
     try:
         return send_from_directory(f'database/files/videos/', filename)
     except:
@@ -588,7 +464,6 @@ def read(filename):
 
 @videos_router.route('/videos/thumbnail/<path:filename>', methods=['GET'])
 def read_thumbnail(filename):
-
     try:
         return send_file(f'database/files/thumbnails/{filename}')
     except:

@@ -1,4 +1,4 @@
-def email_body(confirm_account_page_url, server_url):
+def body(confirm_account_page_url, server_url):
 
     return f"""
         <div 
