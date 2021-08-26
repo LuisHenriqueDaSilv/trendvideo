@@ -9,6 +9,7 @@ import bcrypt
 import jwt
 import sqlalchemy
 import json
+import os
 
 from app import db, app
 
@@ -92,7 +93,7 @@ class AccountController():
 
 
             # check if the image sent by the user is valid
-            user_image = request.files.get('userimage')
+            user_image = request.files.get('profile_image')
             
             if user_image:
                 
@@ -741,14 +742,98 @@ class AccountController():
     @staticmethod
     def update(user):
         
-        # Get new username and new userimage from request 
-        # Get user from database
-        # make update each one separately 
-        # Save updates in database
-        # return response 
-        
         try: 
-            return 'ok'
+            
+            new_username = request.form.get('new_username')
+            remove_profile_file = request.form.get('remove_profile_image')
+            new_profile_image = request.files.get('new_profile_image')
+            
+            if not new_username and not new_profile_image and not remove_profile_file:
+                
+                return {
+                    'status': 'error',
+                    'message': 'Nothing are updated'
+                }, 400
+            
+            user_account = Account.query.filter_by(
+                id=user.id
+            ).first()
+            
+            if new_username:
+                account_using_the_same_username = Account.query.filter_by(
+                    username=new_username
+                ).first()
+                
+                if account_using_the_same_username:
+                    
+                    if account_using_the_same_username.id == user_account.id:
+                        return {
+                            'status': 'error',
+                            'message': 'The new username needs to be different from current'
+                        }, 400
+                    else:
+                        return {
+                            'status': 'error',
+                            'message': 'The username entered is already in use'
+                        }, 400
+                
+                new_username = new_username.strip()
+                
+                invalid_username = len(
+                    new_username
+                ) > 20 or len(
+                    new_username
+                ) < 5 or " " in new_username
+                
+                if invalid_username:
+                    return {
+                        'status': 'error',
+                        'mesage': 'Invalid username' 
+                    }, 400
+                user_account.username = new_username
+            
+            if remove_profile_file:
+                
+                if user_account.image_name != 'default.jpg':
+                    os.remove(f'./app/database/files/user_image/{user_account.image_name}')
+                    user_account.image_name = 'default.jpg'
+                    
+            elif new_profile_image:
+                
+                allowed_image_mimetypes = [
+                    "image/png",
+                    "image/jpeg"
+                ]            
+                    
+                if new_profile_image.mimetype not in allowed_image_mimetypes:
+
+                    return {
+                        'status': 'error',
+                        'message': 'Invalid new profile image'
+                    }, 400
+                    
+                if user_account.image_name != 'default.jpg':
+                    os.remove(f'./app/database/files/user_image/{user_account.image_name}')
+                    
+                new_profile_image_name = f'{uuid4().hex}-{date.today()}.png'
+                new_profile_image.save(
+                    f'./app/database/files/user_image/{new_profile_image_name}'
+                )
+                
+                user_account.image_name = new_profile_image_name
+            
+            db.session.commit()
+            
+            new_user_infos_to_send = {
+                'username': user_account.username,
+                'image_url': f'{request.url_root}/account/image/{user_account.image_name}'
+            }
+            
+            return {
+                'status': 'ok',
+                'new_userdata': new_user_infos_to_send
+            }
+            
         except Exception as error:
 
             app.logger.error(error)

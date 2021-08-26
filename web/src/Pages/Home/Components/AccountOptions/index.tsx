@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link} from 'react-router-dom'
 
 //services
 import {logout} from '../../../../Services/Authorization'
@@ -25,10 +25,6 @@ export function AccountOptions(){
     const onClickShowMenu = () => {
         
         setIsOpeningMenu(!isOpeningMenu)
-    }
-
-    const goToMyAccountPage = () => {
-        history.push(`/user/${username}`)
     }
 
     const handleLogout = () => {
@@ -59,10 +55,28 @@ export function AccountOptions(){
                 className={styles.accountOptionsContainer}
                 id={isOpeningMenu? styles.showOptions:styles.hideOptions}
             >
-                <button onClick={goToMyAccountPage}>
+                <Link  
+                    to={`/user/${username}`}
+                    className={styles.optionButton}
+                >
                     My account
-                </button>
-                <button onClick={handleLogout}>Logout</button>
+                </Link>
+                <Link 
+                    className={styles.optionButton}
+                    to="/myaccount/videos"
+                >
+                    My videos
+                </Link>
+                <Link 
+                    className={styles.optionButton}
+                    to="/myaccount"
+                >
+                    Options
+                </Link>
+                <button
+                    onClick={handleLogout}
+                    className={styles.optionButton}
+                >Logout</button>
             </div>
         </>
     )

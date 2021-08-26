@@ -33,6 +33,7 @@ export function MyVideos(){
 
     useEffect(() => {
         getVideos()
+        // eslint-disable-next-line
     }, [])
 
     async function getVideos() {
@@ -184,14 +185,14 @@ export function MyVideos(){
                                     <td>
                                         {video.video_data.likes}
                                     </td>
-                                    <td>{video.video_data.description}</td>
+                                    <td className={styles.descriptionArea}>bb{video.video_data.description}</td>
                                     <td>{video.video_data.comments}</td>
                                     <td>
                                         <button 
                                             onClick={() => {handleDeleteVideo(video)}}
                                             className={styles.deleteButton}
                                         >
-                                            <img src="/icons/DeleteIcon.png"/>
+                                            <img alt="Delete" src="/icons/DeleteIcon.png"/>
                                             Delete
                                         </button>
                                     </td>

@@ -188,7 +188,7 @@ class VideoController():
             }, 500
 
     @staticmethod
-    def getVideosList(user):
+    def get_videos_list(user):
 
         try:
 
@@ -304,6 +304,98 @@ class VideoController():
                 'message': 'Something unexpected happened'
             }, 500
 
+    @staticmethod
+    def get_from_followeds(user):
+        
+        try:
+            
+            args = dict(request.args)
+
+            start = args.get('start') or 0  # default 0
+            
+            try: 
+                pass
+            except:
+                return {
+                    'status': 'error',
+                    'message': 'Start param not is a number'
+                }, 400
+            
+            followeds_userd_id = [follow.followed_user_id for follow in user.follows]
+            
+            videos = Video.query.filter(
+                Video.owner_id.in_(followeds_userd_id)
+            ).limit(
+                25
+            ).offset(
+                start
+            ).all()
+            
+            
+            liked_videos_ids = [
+                like.video_id for like in user.likes
+            ]
+            
+            videos_list = []
+            
+            for video in videos:
+
+                likes_str = str(len(video.likes))
+                likes_complement = ''
+
+                if len(likes_str) > 9:
+                    likes_complement = 'b'
+                    likes_str = likes_str[:-9]
+                elif len(likes_str) > 6:
+                    likes_complement = 'mi'
+                    likes_str = likes_str[:-6]
+                elif len(likes_str) > 3:
+                    likes_complement = 'k'
+                    likes_str = likes_str[:-3]
+
+                liked = video.id in liked_videos_ids
+
+                videos_list.append({
+                    'url': f'{request.url_root}/video/{video.name}',
+                    'video_data': {
+                        'likes': f'{likes_str}{likes_complement}',
+                        'description': video.description,
+                        'created_at': video.created_at,
+                        'thumbnail_url': f'{request.url_root}/videos/thumbnail/{video.thumbnail}',
+                        'id': video.id,
+                        'name': video.name,
+                        'liked': liked,
+                        'comments': len(video.comments)
+                    },
+                    'owner': {
+                        'username': video.owner.username,
+                        'created_at': video.owner.created_at,
+                        'followers': video.owner.followers,
+                        'image_url': f'{request.url_root}/account/image/{video.owner.image_name}',
+                        'followed': True,
+                        'id': video.owner.id
+                    }
+                })
+            
+            if not videos_list:
+                return {
+                    'status': 'error',
+                    'message': 'Could not find any video'
+                }, 404
+                
+                
+            return json.dumps(videos_list)
+            
+        except Exception as error:
+
+            app.logger.error(error)
+
+            return {
+                'status': 'error',
+                'message': 'Something unexpected happened'
+            }, 500
+            
+        
     @staticmethod
     def like(user):
 
@@ -477,3 +569,5 @@ class VideoController():
                 'status': 'error',
                 'message': 'Something unexpected happened'
             }, 500
+    
+    

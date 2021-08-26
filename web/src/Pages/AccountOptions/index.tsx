@@ -7,6 +7,7 @@ import {MyVideos} from './Components/MyVideos'
 import {UpdateAccount} from './Components/UpdateAccount'
 
 export function AccountOptions(){
+
     return (
         <div className={styles.accountOptionsContainer}>
 
@@ -17,6 +18,7 @@ export function AccountOptions(){
                 >
                     <img 
                         src="/Logo.png"
+                        alt="Logo"
                     />
                     <h1>TrendVideo</h1>
                 </Link>

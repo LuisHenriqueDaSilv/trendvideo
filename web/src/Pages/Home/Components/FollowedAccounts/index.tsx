@@ -96,6 +96,7 @@ export function FollowedAccounts(){
                                     alt={account.username}
                                 />
                                 <h1>{account.username}</h1>
+                                <div/>
                             </Link>
                         )
                     })

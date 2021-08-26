@@ -79,7 +79,7 @@ def search_accounts(user):
 
 
 @accounts_router.route('/account/image/<path:filename>', methods=['GET'])
-def read_userimage(filename):
+def read_profile_image(filename):
 
     try:
         return send_from_directory('database/files/user_image/', filename)

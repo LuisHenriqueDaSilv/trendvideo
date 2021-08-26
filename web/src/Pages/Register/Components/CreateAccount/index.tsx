@@ -79,7 +79,7 @@ export function CreateAccount(){
         data.append('username', username)
         
         if(userImage){
-            data.append('userimage', userImage)
+            data.append('profile_image', userImage)
         }
 
         const response:any = await api.post('/account/create', data).catch((error) => {

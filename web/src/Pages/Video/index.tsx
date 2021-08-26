@@ -14,7 +14,7 @@ import {VideoOptionsArea} from './Components/VideoOptionsArea'
 
 //Services
 import {logout} from '../../Services/Authorization'
-import {getVideos, getVideosFromUsername} from '../../Services/GetVideos'
+import {getFollowedsVideo, getVideos, getVideosFromUsername} from '../../Services/GetVideos'
 
 //Contexts
 import AlertContext from '../../Contexts/AlertContext'
@@ -35,6 +35,7 @@ export function VideoPage(){
     const [currentVideoIndex, setCurrentVideoIndex] = useState<number>(0)
     const [previousVideoIndex, setPreviousVideoIndex] = useState<number>(0)
     const [isToSlideVideoUp, setIsToSlideVideoUp] = useState<boolean>(true)
+    const [followedsVideos, setFollowedsVideos] = useState<boolean>(false)
     const [
         sortBy, 
         setSortBy
@@ -50,6 +51,7 @@ export function VideoPage(){
     useEffect(() => {
 
         const username = queryParams.get('user')
+        const followeds = queryParams.get('followeds')
 
         if(!location.state || !location.state.videos){
             if(username){
@@ -70,6 +72,9 @@ export function VideoPage(){
 
         if(location.state.sortBy){
             setSortBy(location.state.sortBy)
+        }
+        if(followeds){
+            setFollowedsVideos(true)
         }
         if(username){
             setVideosOwnerUsername(username)
@@ -123,7 +128,11 @@ export function VideoPage(){
 
         let response: any = false 
 
-        if(videosOwnerUsername){
+        if(followedsVideos){
+
+            response = await getFollowedsVideo({start: videos.length})
+
+        }else if(videosOwnerUsername){
 
             response = await getVideosFromUsername({
                 start: videos.length,

@@ -1,5 +1,7 @@
 .accountOptionsContainer {
     display: flex;
+    flex: 1;
+    flex-direction: row;
 
     .pageSelectorContainer {
         display: flex;
@@ -61,5 +63,50 @@
         top: 0;
         flex: 1;
         width: calc(100vw - 25rem);
+    }
+}
+
+@media (max-width: 1050px){
+
+    .accountOptionsContainer {
+        width: 100vw;
+        flex-direction: column;
+
+        .pageSelectorContainer {
+            display: flex;
+            height: 12rem;
+            padding-bottom: 2rem;
+            width: 100%;
+            
+            .goToHomeButton {
+                flex-direction: row;
+                padding: 1rem;
+
+                img {
+                    height: 3rem;
+                    width: 3rem;
+                }
+
+                h1 {
+                    font-size: 1.5rem;
+                }
+            }
+
+            .navigationContainer {
+                margin-top: 1rem;
+                gap: 1rem;
+
+                a {
+                    font-size: 1rem;
+                    padding: 0.25rem;
+                }
+            }
+        }
+
+        .router {
+            position: initial;
+            width: 100vw;
+            margin-top: 15rem;
+        }
     }
 }

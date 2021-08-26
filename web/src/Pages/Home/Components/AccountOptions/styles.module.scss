@@ -68,7 +68,8 @@
 
     border-bottom-left-radius: 10px;
 
-    button {
+    .optionButton {
+        text-align: center;
         background: none;
         border: 0;
         color: #c4c4c4;
@@ -79,7 +80,7 @@
         height: 3rem;
     }
 
-    button:hover {
+    .optionButton:hover {
         opacity: 0.5;
         background-color: var(--grey);
     }
@@ -114,6 +115,10 @@
     .accountOptionsContainer {
         width: 100vw;
         z-index: 1;
+
+        .optionButton {
+            font-size: 1rem;
+        }
     }
 
     #hideOptions {

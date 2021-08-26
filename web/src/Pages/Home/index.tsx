@@ -4,6 +4,7 @@ import styles from './styles.module.scss'
 
 //Components
 import {VideosList} from './Components/VideosList'
+import {FollowedVideos} from './Components/FollowedVideos'
 import {AccountOptions} from './Components/AccountOptions'
 import {FollowedAccounts} from './Components/FollowedAccounts'
 import {SearchBar} from '../../Components/SearchBar'
@@ -38,7 +39,7 @@ export function Home(){
                                 (styles.disabledButton) : ''
                         }
                     >
-                        Creators you follow
+                        Videos by creators you follow
                     </Link>
                     <Link
                         to="/home/videos" 
@@ -52,7 +53,7 @@ export function Home(){
                 </header>
 
                 <div className={styles.videosRouter}>
-                    <Route path="/home" exact component={() => {return(<h1>Add here the followed videos</h1>)}}/>
+                    <Route path="/home" exact component={FollowedVideos}/>
                     <Route path="/home/videos" component={VideosList}/>
                 </div>
 

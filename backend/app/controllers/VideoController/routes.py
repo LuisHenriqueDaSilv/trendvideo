@@ -11,16 +11,21 @@ videos_router = Blueprint(
 )
 
 
-@videos_router.route('/videos', methods=['GET'])
-@verify_token
-def index(user):
-    return VideoController.getVideosList(user)
-
-
 @videos_router.route('/video/create', methods=['POST'])
 @verify_token
 def create(user):
     return VideoController.create(user)
+
+
+@videos_router.route('/videos', methods=['GET'])
+@verify_token
+def index(user):
+    return VideoController.get_videos_list(user)
+
+@videos_router.route('/videos/followeds', methods=['GET'])
+@verify_token
+def get_videos_from_followeds_user(user):
+    return VideoController.get_from_followeds(user)
 
 
 @videos_router.route('/video/<path:filename>', methods=['GET'])
@@ -54,6 +59,7 @@ def delete(user):
 @verify_token
 def like(user):
     return VideoController.like(user)
+
 
 @videos_router.route('/videos/<path:username>')
 @verify_token
