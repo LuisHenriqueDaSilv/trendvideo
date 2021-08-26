@@ -4,7 +4,12 @@ class Comment(db.Model):
     
     __tablename__ = 'comments'
     
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    id = db.Column(
+        db.Integer, 
+        primary_key=True, 
+        autoincrement=True, 
+        unique=True
+    )
     owner_id = db.Column(db.Integer, db.ForeignKey('accounts.id'))
     video_id = db.Column(db.Integer, db.ForeignKey('videos.id'))
     content = db.Column(db.Text)

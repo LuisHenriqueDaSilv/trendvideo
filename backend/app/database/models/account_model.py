@@ -2,10 +2,17 @@ from app import db
 from datetime import datetime
 
 class Account(db.Model):
+    
 
     __tablename__ = "accounts"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    id = db.Column(
+        db.Integer, 
+        primary_key=True, 
+        autoincrement=True, 
+        unique=True
+    )
+    
     username = db.Column(db.Text,  unique=True)
     email = db.Column(db.Text, unique=True)
     password = db.Column(db.Text)
@@ -18,10 +25,19 @@ class Account(db.Model):
     videos = db.relationship('Video', backref='owner')
     likes = db.relationship('Like', backref='user')
     comments = db.relationship('Comment', backref='owner')
-    change_password_requests = db.relationship('ChangePasswordRequest', backref='user')
+    change_password_requests = db.relationship(
+        'ChangePasswordRequest', 
+        backref='user'
+    )
 
-
-    def __init__(self, username, email, password, confirmation_uuid, image_name):
+    def __init__(
+        self, 
+        username, 
+        email, 
+        password, 
+        confirmation_uuid,
+        image_name
+    ):
 
         self.followers = 0
         self.created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

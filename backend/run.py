@@ -8,6 +8,5 @@ PORT=dotenv_variables.get('PORT')
 if not PORT:
     PORT = 3000
 
-
 if __name__ == "__main__":
     app.run(port=PORT)

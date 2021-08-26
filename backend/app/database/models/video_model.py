@@ -7,7 +7,12 @@ class Video(db.Model):
 
     __tablename__ = "videos"
 
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True, unique=True)
+    id = db.Column(
+        db.Integer, 
+        autoincrement=True, 
+        primary_key=True, 
+        unique=True
+    )
     name = db.Column(db.Text)
     description = db.Column(db.Text)
     created_at = db.Column(db.Text)

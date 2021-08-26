@@ -188,6 +188,7 @@ export function FollowedVideos(){
                                 <img
                                     src={video.video_data.thumbnail_url}
                                     onClick={() => {setPlayingVideoIndex(index)}}
+                                    alt="Video thumbnail"
                                 />
                             )
                         }

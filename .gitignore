@@ -4,8 +4,8 @@
 #Backend
 backend/env/
 backend/app/database/database.sqlite
-backend/app/database/files/user_image/*
-!backend/app/database/files/user_image/default.jpg
+backend/app/database/files/profile_image/*
+!backend/app/database/files/profile_image/default.jpg
 backend/app/database/files/videos/*
 !backend/app/database/files/videos/default.ogv
 backend/app/database/models/migrations/*
