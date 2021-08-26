@@ -739,7 +739,7 @@ def update(user):
                 if invalid_username:
                     return {
                         'status': 'error',
-                        'mesage': 'Invalid username' 
+                        'message': 'Invalid username' 
                     }, 400
                 
                 account_to_update.username = new_username
