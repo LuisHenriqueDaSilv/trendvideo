@@ -21,7 +21,7 @@
 ##### **Clone respository**
 
 ```bash
-git clone git clone https://github.com/LuisHenriqueDaSilv/trendvideo.git
+  git clone https://github.com/LuisHenriqueDaSilv/trendvideo.git
 ```
 
 ### **Run backend**
