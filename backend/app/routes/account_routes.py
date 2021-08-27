@@ -774,7 +774,3 @@ def get_profile_image(filename):
         return send_from_directory('database/files/profile_image/', filename)
     except:
         return send_from_directory('database/files/profile_image/', 'default.jpg')
-
-
-# To do: Create new table in database to confirm account process and 
-# remove confirm_uuid row in Account table
