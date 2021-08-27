@@ -10,7 +10,6 @@ backend/app/database/files/videos/*
 !backend/app/database/files/videos/default.ogv
 backend/app/database/models/migrations/*
 backend/app/database/files/thumbnails/*
-backend/app/logs/*
 __pycache__/
 
 
